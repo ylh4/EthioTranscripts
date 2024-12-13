@@ -35,6 +35,15 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold mb-8">Our Leadership Team</h2>
           <div className="space-y-16">
             <TeamMember
+              name="Yared Lemma Hurisa"
+              title="Co-founder and Chief Technical Officer"
+              description="Yared Lemma Hurisa is the Co-founder and Chief Technical Officer of Ethio-Transcripts. With over 10 years of experience in designing and managing knowledge and monitoring systems, Yared has been instrumental in developing robust technical solutions that ensure transparency and efficiency for users seeking official transcripts, degree certificates, document authentication, and translation services.
+
+Yared holds a Master of International Development Policy from Duke University, where he was a Rotary Peace Fellow funded by the Duke-UNC Peace Center. His academic background equips him with the expertise to manage complex workflows and deliver exceptional client service. At Ethio-Transcripts, Yared leads the technical team, overseeing the development and maintenance of the company's digital platforms and ensuring the security and integrity of client data. His leadership has been pivotal in positioning Ethio-Transcripts as a trusted global service provider in academic document procurement and validation."
+              imagePath="/images/team/yared-lemma-hurisa.jpg"
+            />
+            
+            <TeamMember
               name="Nataliya Solomon"
               title="Co-founder and Chief Operations Manager"
               description="Nataliya Solomon is the Co-founder and Chief Operations Manager of Ethio-Transcripts, a company dedicated to streamlining the procurement, authentication, and delivery of academic transcripts and related educational documents from Ethiopian universities to clients worldwide. With a strong background in business development and operations management, Nataliya has been instrumental in establishing efficient processes that ensure transparency and efficiency for users seeking official transcripts, degree certificates, document authentication, and translations services.
