@@ -20,14 +20,17 @@ export default function HowItWorksPage() {
         </div>
 
         {/* Process Image */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-          <Image
-            src="/images/how-it-works.jpg"
-            alt="EthioTranscripts document procurement process"
-            fill
-            className="object-cover"
-            priority
-          />
+        <div className="w-full max-w-4xl mx-auto">
+          <div className="relative w-full h-[400px] md:h-[500px] rounded-lg overflow-hidden shadow-lg">
+            <Image
+              src="/images/how-it-works.jpg"
+              alt="EthioTranscripts document procurement process"
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+              priority
+            />
+          </div>
         </div>
 
         {/* Process Steps */}
