@@ -9,6 +9,7 @@ import GoogleAnalytics from '@/components/analytics/google-analytics'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ethiotranscripts.com'),
   title: {
     default: 'EthioTranscripts - Academic Document Procurement Service',
     template: '%s | EthioTranscripts'

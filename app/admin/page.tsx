@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import { createServerClient } from "@/lib/supabase/server"
 import { AUTH_ROUTES } from "@/lib/admin/config/constants"
 
 export default async function AdminPage() {
-  const supabase = createClient()
+  const supabase = createServerClient()
   
   try {
     const { data: { session } } = await supabase.auth.getSession()
