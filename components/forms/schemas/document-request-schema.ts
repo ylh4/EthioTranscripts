@@ -23,7 +23,7 @@ export const documentRequestSchema = z.object({
   documentType: z.string().min(1, "Please select document type"),
   additionalRemarks: z.string().optional(),
   needsTranslation: z.boolean().default(false),
-  needsApostille: z.boolean().default(false),
+  needsAuthentication: z.boolean().default(false),
 }).refine((data) => {
   if (data.fromUniversity === "other") {
     return data.otherUniversity && data.otherUniversity.length >= 2

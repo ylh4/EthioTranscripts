@@ -194,7 +194,7 @@ export function DocumentRequestFields({ form }: DocumentRequestFieldsProps) {
 
           <FormField
             control={form.control}
-            name="needsApostille"
+            name="needsAuthentication"
             render={({ field }) => (
               <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                 <FormControl>
@@ -204,7 +204,7 @@ export function DocumentRequestFields({ form }: DocumentRequestFieldsProps) {
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>Apostille Service</FormLabel>
+                  <FormLabel>Authentication Service</FormLabel>
                 </div>
               </FormItem>
             )}

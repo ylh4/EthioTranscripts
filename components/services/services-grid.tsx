@@ -1,6 +1,6 @@
 "use client"
 
-import { FileText, GraduationCap, Globe, Languages, CheckSquare, Stamp } from "lucide-react"
+import { FileText, GraduationCap, Globe, Languages, CheckSquare } from "lucide-react"
 import { ServiceCard } from "./service-card"
 
 const services = [
@@ -21,12 +21,6 @@ const services = [
     description: "Professional translation services for your academic documents",
     icon: Languages,
     href: "/services/translation"
-  },
-  {
-    title: "Apostille",
-    description: "International document certification and legalization services",
-    icon: Stamp,
-    href: "/services/apostille"
   },
   {
     title: "Global Delivery",

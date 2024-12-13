@@ -19,7 +19,7 @@ interface CreateDocumentRequestInput {
   }
   document_type: string
   needs_translation?: boolean
-  needs_apostille?: boolean
+  needs_authentication?: boolean
   additional_remarks?: string
 }
 
@@ -72,7 +72,7 @@ export async function createDocumentRequest(data: CreateDocumentRequestInput): P
         to_university_location_id: location.id,
         document_type: data.document_type,
         needs_translation: data.needs_translation ?? false,
-        needs_apostille: data.needs_apostille ?? false,
+        needs_authentication: data.needs_authentication ?? false,
         additional_remarks: data.additional_remarks,
         status: 'pending'
       }])

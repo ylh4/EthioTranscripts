@@ -9,8 +9,10 @@ export default function ContactPage() {
         title="Contact Us"
         description="Get in touch with our team for support and inquiries"
       />
-      <div className="max-w-2xl mx-auto mt-8">
-        <ContactForm />
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <ContactForm />
+        </div>
       </div>
     </PageLayout>
   )

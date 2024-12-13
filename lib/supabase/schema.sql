@@ -140,3 +140,66 @@ create trigger update_admin_users_updated_at
   before update on admin_users
   for each row
   execute function update_updated_at();
+
+-- Create contact_messages table
+create table contact_messages (
+  id uuid default uuid_generate_v4() primary key,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  name text not null,
+  email text not null,
+  subject text not null,
+  message text not null,
+  status text default 'unread' check (status in ('unread', 'read', 'replied', 'archived'))
+);
+
+-- Enable RLS for contact_messages
+alter table contact_messages enable row level security;
+
+-- Drop existing policies if they exist
+drop policy if exists "Enable insert access for all users" on contact_messages;
+drop policy if exists "Enable read access for admins" on contact_messages;
+drop policy if exists "Enable update for admins" on contact_messages;
+drop policy if exists "Enable delete for admins" on contact_messages;
+
+-- Create RLS policies for contact_messages
+create policy "Allow public insert" on contact_messages
+  for insert
+  to anon, authenticated
+  with check (true);
+
+create policy "Allow admin read" on contact_messages
+  for select
+  to authenticated
+  using (
+    exists (
+      select 1 from admin_users
+      where email = auth.jwt()->>'email'
+    )
+  );
+
+create policy "Allow admin update" on contact_messages
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from admin_users
+      where email = auth.jwt()->>'email'
+    )
+  );
+
+create policy "Allow admin delete" on contact_messages
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from admin_users
+      where email = auth.jwt()->>'email'
+    )
+  );
+
+-- Add updated_at trigger for contact_messages
+create trigger update_contact_messages_updated_at
+  before update on contact_messages
+  for each row
+  execute function update_updated_at();

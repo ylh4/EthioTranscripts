@@ -34,9 +34,8 @@ const nextConfig = {
       // Configure cache for development
       config.cache = {
         type: 'filesystem',
-        version: '1.0.0',
-        cacheDirectory: path.resolve(__dirname, '.next/cache/webpack'),
-        store: 'pack',
+        allowCollectingMemory: true,
+        memoryCacheUnaffected: true,
         buildDependencies: {
           config: [__filename],
         },

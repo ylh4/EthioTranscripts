@@ -12,7 +12,7 @@ interface ContactFormFieldsProps {
 
 export function ContactFormFields({ form }: ContactFormFieldsProps) {
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="name"
@@ -20,7 +20,10 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
           <FormItem>
             <FormLabel>Name</FormLabel>
             <FormControl>
-              <Input placeholder="Your name" {...field} />
+              <Input 
+                placeholder="Your name" 
+                {...field} 
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -34,7 +37,11 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
           <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input type="email" placeholder="your@email.com" {...field} />
+              <Input 
+                type="email" 
+                placeholder="you@example.com" 
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -48,7 +55,10 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
           <FormItem>
             <FormLabel>Subject</FormLabel>
             <FormControl>
-              <Input placeholder="How can we help?" {...field} />
+              <Input 
+                placeholder="What's your message about?" 
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -63,8 +73,8 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
             <FormLabel>Message</FormLabel>
             <FormControl>
               <Textarea 
-                placeholder="Tell us more about your inquiry..."
-                className="min-h-[150px]"
+                placeholder="Your message..."
+                className="min-h-[150px] resize-none"
                 {...field}
               />
             </FormControl>
@@ -72,6 +82,6 @@ export function ContactFormFields({ form }: ContactFormFieldsProps) {
           </FormItem>
         )}
       />
-    </>
+    </div>
   )
 }

@@ -116,8 +116,8 @@ export function DocumentRequestDetails({ referenceNumber }: DocumentRequestDetai
                 <div>{request.needs_translation ? 'Yes' : 'No'}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Apostille Required</div>
-                <div>{request.needs_apostille ? 'Yes' : 'No'}</div>
+                <div className="text-sm text-muted-foreground">Authentication Required</div>
+                <div>{request.needs_authentication ? 'Yes' : 'No'}</div>
               </div>
             </div>
           </div>
