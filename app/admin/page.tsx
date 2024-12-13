@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation"
+import { createServerClient } from "@/lib/supabase/server"
 import { AUTH_ROUTES } from "@/lib/admin/config/constants"
 
-export default function AdminPage() {
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">Redirecting...</h1>
-        <p className="text-gray-600">Please wait while we verify your credentials.</p>
-      </div>
-    </div>
-  )
+export default async function AdminPage() {
+  const supabase = createServerClient()
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session) {
+    redirect(AUTH_ROUTES.LOGIN)
+  }
+
+  redirect(AUTH_ROUTES.DASHBOARD)
 }

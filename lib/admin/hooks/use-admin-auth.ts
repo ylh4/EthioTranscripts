@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { authService } from "../services/auth-service"
+import { AUTH_ROUTES } from "../config/constants"
 
 export function useAdminAuth() {
   const router = useRouter()
@@ -33,18 +34,18 @@ export function useAdminAuth() {
       if (result.success) {
         setIsAuthenticated(true)
         toast.success("Successfully logged in")
-        router.push("/admin/dashboard")
+        router.replace(AUTH_ROUTES.DASHBOARD)
         return true
       } else {
+        setIsLoading(false)
         toast.error(result.error || "Login failed")
         return false
       }
     } catch (error) {
       console.error("Login error:", error)
       toast.error("An unexpected error occurred")
-      return false
-    } finally {
       setIsLoading(false)
+      return false
     }
   }
 
@@ -54,7 +55,7 @@ export function useAdminAuth() {
       await authService.logout()
       setIsAuthenticated(false)
       toast.success("Successfully logged out")
-      router.push("/admin/login")
+      router.replace(AUTH_ROUTES.LOGIN)
     } catch (error) {
       console.error("Logout error:", error)
       toast.error("Error logging out")

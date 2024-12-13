@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 import { AUTH_ROUTES } from '@/lib/admin/config/constants'
 
 export const config = {
-  matcher: ['/admin', '/admin/:path*']
+  matcher: ['/admin', '/admin/dashboard/:path*']
 }
 
 export async function middleware(req: NextRequest) {
@@ -13,39 +13,33 @@ export async function middleware(req: NextRequest) {
 
   try {
     const { data: { session } } = await supabase.auth.getSession()
-    const isLoginPage = req.nextUrl.pathname === AUTH_ROUTES.LOGIN
-    const isRootAdmin = req.nextUrl.pathname === '/admin' || req.nextUrl.pathname === '/admin/'
+    const isRootAdmin = req.nextUrl.pathname === '/admin'
 
-    // If user is logged in, check if they're an admin
-    if (session) {
-      const { data: adminUser } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('email', session.user.email)
-        .single()
-
-      // If user is an admin
-      if (adminUser) {
-        // If trying to access login page or root admin, redirect to dashboard
-        if (isLoginPage || isRootAdmin) {
-          return NextResponse.redirect(new URL(AUTH_ROUTES.DASHBOARD, req.url))
-        }
-        // Allow access to other admin routes
-        return res
-      } else {
-        // If not an admin, sign them out
-        await supabase.auth.signOut()
-      }
+    // If no session, redirect to login
+    if (!session) {
+      return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
     }
 
-    // If not logged in or not an admin
-    if (isLoginPage) {
-      // Allow access to login page
-      return res
+    // Check if user is admin
+    const { data: adminUser } = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('email', session.user.email)
+      .single()
+
+    // If not admin, sign out and redirect to login
+    if (!adminUser) {
+      await supabase.auth.signOut()
+      return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
     }
 
-    // Redirect everything else to login
-    return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
+    // If admin accessing root admin page, redirect to dashboard
+    if (isRootAdmin) {
+      return NextResponse.redirect(new URL(AUTH_ROUTES.DASHBOARD, req.url))
+    }
+
+    // Allow access to dashboard routes for admin users
+    return res
   } catch (error) {
     console.error('Middleware error:', error)
     return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))

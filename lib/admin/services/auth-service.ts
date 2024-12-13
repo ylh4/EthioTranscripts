@@ -16,6 +16,18 @@ class AuthService {
         return { success: false, error: AUTH_ERRORS.INVALID_PASSWORD }
       }
 
+      // First check if the user is an admin
+      const { data: adminUser, error: checkError } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('email', email)
+        .single()
+
+      if (checkError || !adminUser) {
+        return { success: false, error: AUTH_ERRORS.UNAUTHORIZED }
+      }
+
+      // Then try to sign in
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -28,17 +40,6 @@ class AuthService {
 
       if (!signInData.user) {
         return { success: false, error: AUTH_ERRORS.USER_NOT_FOUND }
-      }
-
-      const { data: adminUser, error: checkError } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('email', email)
-        .single()
-
-      if (checkError || !adminUser) {
-        await supabase.auth.signOut()
-        return { success: false, error: AUTH_ERRORS.UNAUTHORIZED }
       }
 
       return { success: true }

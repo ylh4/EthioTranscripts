@@ -11,7 +11,7 @@ interface AdminLoginFieldsProps {
 
 export function AdminLoginFields({ form }: AdminLoginFieldsProps) {
   return (
-    <div className="space-y-4">
+    <>
       <FormField
         control={form.control}
         name="email"
@@ -47,6 +47,6 @@ export function AdminLoginFields({ form }: AdminLoginFieldsProps) {
           </FormItem>
         )}
       />
-    </div>
+    </>
   )
 }

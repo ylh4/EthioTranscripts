@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   output: 'standalone',
   images: {
@@ -18,6 +20,30 @@ const nextConfig = {
   },
   experimental: {
     serverActions: true,
+  },
+  webpack: (config, { dev, isServer }) => {
+    // Suppress punycode warning
+    config.ignoreWarnings = [
+      { module: /node_modules\/punycode/ }
+    ];
+
+    if (!dev) {
+      // Disable cache in production
+      config.cache = false;
+    } else {
+      // Configure cache for development
+      config.cache = {
+        type: 'filesystem',
+        version: '1.0.0',
+        cacheDirectory: path.resolve(__dirname, '.next/cache/webpack'),
+        store: 'pack',
+        buildDependencies: {
+          config: [__filename],
+        },
+      };
+    }
+
+    return config;
   }
 }
 
