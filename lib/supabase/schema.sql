@@ -39,7 +39,7 @@ create table document_requests (
   
   -- Additional Services
   needs_translation boolean default false,
-  needs_apostille boolean default false,
+  needs_authentication boolean default false,
   additional_remarks text
 );
 
