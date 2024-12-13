@@ -11,12 +11,23 @@ const nextConfig = {
   reactStrictMode: false,
   // Handle ESLint errors during build
   eslint: {
-    // Warning: only use this in development
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // Warning: only use this in development
     ignoreBuildErrors: true,
+  },
+  experimental: {
+    serverActions: true,
+  },
+  // Configure redirects
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/login',
+        permanent: true,
+      },
+    ]
   },
 }
 

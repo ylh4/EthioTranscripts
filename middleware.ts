@@ -19,7 +19,18 @@ export async function middleware(req: NextRequest) {
       // Allow access to login page
       if (req.nextUrl.pathname === AUTH_ROUTES.LOGIN) {
         if (session) {
-          return NextResponse.redirect(new URL(AUTH_ROUTES.DASHBOARD, req.url))
+          // Check if user is admin before redirecting to dashboard
+          const { data: adminUser } = await supabase
+            .from('admin_users')
+            .select('id')
+            .eq('email', session.user.email)
+            .single()
+
+          if (adminUser) {
+            return NextResponse.redirect(new URL(AUTH_ROUTES.DASHBOARD, req.url))
+          } else {
+            await supabase.auth.signOut()
+          }
         }
         return res
       }
