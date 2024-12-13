@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { AUTH_ROUTES } from '@/lib/admin/config/constants'
 
+export const config = {
+  matcher: ['/admin/:path*']
+}
+
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next()
   const supabase = createMiddlewareClient({ req, res })
@@ -22,7 +26,9 @@ export async function middleware(req: NextRequest) {
 
       // Require authentication for other admin routes
       if (!session) {
-        return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
+        const redirectUrl = new URL(AUTH_ROUTES.LOGIN, req.url)
+        redirectUrl.searchParams.set('from', req.nextUrl.pathname)
+        return NextResponse.redirect(redirectUrl)
       }
 
       // Verify admin status
@@ -41,14 +47,6 @@ export async function middleware(req: NextRequest) {
     return res
   } catch (error) {
     console.error('Middleware error:', error)
-    // Only redirect to login for admin routes
-    if (req.nextUrl.pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
-    }
-    return res
+    return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
   }
-}
-
-export const config = {
-  matcher: ['/admin/:path*']
 }
