@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import {
   Table,
   TableBody,
@@ -47,11 +47,7 @@ export function DocumentRequestsTable() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
 
-  useEffect(() => {
-    loadRequests()
-  }, [])
-
-  async function loadRequests() {
+  const loadRequests = useCallback(async () => {
     try {
       const data = await getAllDocumentRequests()
       setRequests(data)
@@ -61,7 +57,11 @@ export function DocumentRequestsTable() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    loadRequests()
+  }, [loadRequests])
 
   async function handleStatusUpdate(requestId: string, newStatus: RequestStatus) {
     setUpdating(requestId)
