@@ -16,6 +16,23 @@ export async function middleware(req: NextRequest) {
 
     // Handle admin routes
     if (req.nextUrl.pathname.startsWith('/admin')) {
+      // Handle root admin path
+      if (req.nextUrl.pathname === '/admin' || req.nextUrl.pathname === '/admin/') {
+        if (session) {
+          // Check if user is admin before redirecting to dashboard
+          const { data: adminUser } = await supabase
+            .from('admin_users')
+            .select('id')
+            .eq('email', session.user.email)
+            .single()
+
+          if (adminUser) {
+            return NextResponse.redirect(new URL(AUTH_ROUTES.DASHBOARD, req.url))
+          }
+        }
+        return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
+      }
+
       // Allow access to login page
       if (req.nextUrl.pathname === AUTH_ROUTES.LOGIN) {
         if (session) {
@@ -37,9 +54,7 @@ export async function middleware(req: NextRequest) {
 
       // Require authentication for other admin routes
       if (!session) {
-        const redirectUrl = new URL(AUTH_ROUTES.LOGIN, req.url)
-        redirectUrl.searchParams.set('from', req.nextUrl.pathname)
-        return NextResponse.redirect(redirectUrl)
+        return NextResponse.redirect(new URL(AUTH_ROUTES.LOGIN, req.url))
       }
 
       // Verify admin status
