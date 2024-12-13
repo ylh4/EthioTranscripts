@@ -53,4 +53,5 @@ export function AdminLoginForm() {
   )
 }
 
+// Default export for dynamic import
 export default AdminLoginForm

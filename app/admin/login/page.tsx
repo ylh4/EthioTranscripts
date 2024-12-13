@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
@@ -9,8 +9,18 @@ import { createClient } from "@/lib/supabase/client"
 
 // Dynamically import the login form with SSR disabled to prevent hydration issues
 const AdminLoginForm = dynamic(
-  () => import("@/components/admin/admin-login-form").then(mod => mod.AdminLoginForm),
-  { ssr: false }
+  () => import("@/components/admin/admin-login-form"),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="text-lg font-medium">Loading login form...</div>
+          <div className="text-sm text-muted-foreground">Please wait</div>
+        </div>
+      </div>
+    )
+  }
 )
 
 export default function AdminLoginPage() {
@@ -37,7 +47,16 @@ export default function AdminLoginPage() {
           description="Access the administrator dashboard"
         />
         <div className="mt-8">
-          <AdminLoginForm />
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center">
+                <div className="text-lg font-medium">Loading login form...</div>
+                <div className="text-sm text-muted-foreground">Please wait</div>
+              </div>
+            </div>
+          }>
+            <AdminLoginForm />
+          </Suspense>
         </div>
       </div>
     </PageLayout>
