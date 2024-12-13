@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/page-header"
 import { PageLayout } from "@/components/layout/page-layout"
+import { TeamMember } from "@/components/about/team-member"
 
 export default function AboutPage() {
   return (
@@ -27,6 +28,22 @@ export default function AboutPage() {
             <p className="text-muted-foreground">
               To be the leading facilitator of academic document procurement and authentication services for Ethiopian universities globally.
             </p>
+          </div>
+        </div>
+
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold mb-8">Our Leadership Team</h2>
+          <div className="space-y-16">
+            <TeamMember
+              name="Nataliya Solomon"
+              title="Co-founder and Chief Operations Manager"
+              description="Nataliya Solomon is the Co-founder and Chief Operations Manager of Ethio-Transcripts, a company dedicated to streamlining the procurement, authentication, and delivery of academic transcripts and related educational documents from Ethiopian universities to clients worldwide. With a strong background in business development and operations management, Nataliya has been instrumental in establishing efficient processes that ensure transparency and efficiency for users seeking official transcripts, degree certificates, document authentication, and translations services.
+
+Nataliya holds a MSc in Urban Design and Sustainable Development from Arbaminch University, equipping her with the strategic and operational expertise to manage complex workflows and deliver exceptional client service. Currently, she leads the operations team at Ethio-Transcripts, ensuring the seamless execution of document processing and service delivery. Her leadership has been pivotal in positioning Ethio-Transcripts as a trusted global service provider in academic document procurement and validation.
+
+Additionally, Nataliya is actively engaged in fostering partnerships and exploring innovative solutions to enhance the company's global outreach and operational efficiency."
+              imagePath="/images/team/nataliya-solomon.jpg"
+            />
           </div>
         </div>
       </div>
