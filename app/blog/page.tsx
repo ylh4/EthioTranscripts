@@ -4,22 +4,10 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { PageHeader } from "@/components/page-header"
-import type { BlogPost } from "@/lib/blog/schemas"
+import { getStaticPosts } from "@/lib/blog/static-data"
 
-export const dynamic = 'force-dynamic'
-
-export default function BlogPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([])
-
-  useEffect(() => {
-    fetchPosts()
-  }, [])
-
-  const fetchPosts = async () => {
-    const response = await fetch("/api/blog")
-    const data = await response.json()
-    setPosts(data)
-  }
+export default async function BlogPage() {
+  const posts = await getStaticPosts()
 
   return (
     <>
@@ -64,13 +52,13 @@ export default function BlogPage() {
               </div>
             </article>
           ))}
-        </div>
 
-        {(!posts || posts.length === 0) && (
-          <div className="text-center text-muted-foreground">
-            No blog posts found.
-          </div>
-        )}
+          {(!posts || posts.length === 0) && (
+            <div className="text-center text-muted-foreground">
+              No blog posts found.
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

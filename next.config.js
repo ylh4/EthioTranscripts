@@ -2,7 +2,7 @@
 const path = require('path');
 
 const nextConfig = {
-  output: 'standalone',
+  output: 'export',
   images: {
     unoptimized: true,
     domains: ['qjcztezbufyqbipwjwjv.supabase.co'],

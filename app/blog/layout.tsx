@@ -1,7 +1,7 @@
 import { Navigation } from "@/components/layout/navigation"
 import { BlogCategories } from "@/components/blog/blog-categories"
 
-export default function BlogLayout({
+export default async function BlogLayout({
   children,
 }: {
   children: React.ReactNode

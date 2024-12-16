@@ -1,11 +1,8 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { notFound } from "next/navigation"
 import { format } from "date-fns"
+import { notFound } from "next/navigation"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import type { BlogPost } from "@/lib/blog/schemas"
+import { getStaticPosts, getStaticPostBySlug } from "@/lib/blog/static-data"
 
 interface BlogPostPageProps {
   params: {
@@ -13,38 +10,15 @@ interface BlogPostPageProps {
   }
 }
 
-export default function BlogPostPage({ params }: BlogPostPageProps) {
-  const [post, setPost] = useState<BlogPost | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+export async function generateStaticParams() {
+  const posts = await getStaticPosts()
+  return posts.map((post) => ({
+    slug: post.slug,
+  }))
+}
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const response = await fetch(`/api/blog/public?slug=${params.slug}`)
-        if (!response.ok) {
-          if (response.status === 404) {
-            notFound()
-          }
-          throw new Error("Failed to fetch post")
-        }
-        const data = await response.json()
-        setPost(data)
-      } catch (error) {
-        console.error("Failed to fetch post:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    fetchPost()
-  }, [params.slug])
-
-  if (isLoading) {
-    return (
-      <div className="text-center text-muted-foreground">
-        Loading post...
-      </div>
-    )
-  }
+export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const post = await getStaticPostBySlug(params.slug)
 
   if (!post || !post.published_at) {
     notFound()
