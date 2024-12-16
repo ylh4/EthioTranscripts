@@ -4,14 +4,25 @@ import { UseFormReturn } from "react-hook-form"
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import type { AdminLoginData } from "@/lib/admin/schemas"
+import { useEffect, useState } from "react"
 
 interface AdminLoginFieldsProps {
   form: UseFormReturn<AdminLoginData>
 }
 
 export function AdminLoginFields({ form }: AdminLoginFieldsProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) {
+    return null
+  }
+
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={form.control}
         name="email"
@@ -47,6 +58,6 @@ export function AdminLoginFields({ form }: AdminLoginFieldsProps) {
           </FormItem>
         )}
       />
-    </>
+    </div>
   )
 }

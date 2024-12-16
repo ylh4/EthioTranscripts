@@ -25,13 +25,15 @@ export function AdminLoginForm() {
   }, [login])
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <AdminLoginFields form={form} />
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Signing in..." : "Sign In"}
-        </Button>
-      </form>
-    </FormProvider>
+    <div className="w-full">
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <AdminLoginFields form={form} />
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Signing in..." : "Sign In"}
+          </Button>
+        </form>
+      </FormProvider>
+    </div>
   )
 }
