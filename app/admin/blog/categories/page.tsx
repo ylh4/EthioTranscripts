@@ -27,8 +27,8 @@ export default async function BlogCategoriesPage() {
   return (
     <div className="container space-y-8 py-8">
       <PageHeader
-        heading="Blog Categories"
-        text="View and manage blog categories"
+        title="Blog Categories"
+        description="View and manage blog categories"
       />
 
       <div className="rounded-md border">
