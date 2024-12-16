@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 import { AUTH_ROUTES } from '@/lib/admin/config/constants'
 
 export const config = {
-  matcher: ['/admin', '/admin/dashboard/:path*']
+  matcher: ['/admin', '/admin/dashboard/:path*', '/admin/blog/:path*']
 }
 
 export async function middleware(req: NextRequest) {
