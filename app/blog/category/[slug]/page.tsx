@@ -7,6 +7,8 @@ import { format } from "date-fns"
 import { PageHeader } from "@/components/page-header"
 import type { BlogPost, BlogCategory } from "@/lib/blog/schemas"
 
+export const dynamic = 'force-dynamic'
+
 interface CategoryPageProps {
   params: {
     slug: string

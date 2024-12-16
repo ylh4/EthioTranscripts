@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   try {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const { searchParams } = new URL(request.url)
     const slug = searchParams.get("slug")
     const category = searchParams.get("category")
-    
-    const supabase = createRouteHandlerClient({ cookies })
     
     if (slug) {
       // Get single post
@@ -35,13 +38,13 @@ export async function GET(request: Request) {
         .from("blog_posts")
         .select(`
           *,
-          categories:blog_posts_categories(
-            category:blog_categories(*)
+          categories:blog_posts_categories!inner(
+            category:blog_categories!inner(*)
           )
         `)
+        .eq('blog_posts_categories.category_id', category)
         .not("published_at", "is", null)
         .lte("published_at", new Date().toISOString())
-        .eq("blog_posts_categories.category_id", category)
         .order("published_at", { ascending: false })
 
       if (error) throw error

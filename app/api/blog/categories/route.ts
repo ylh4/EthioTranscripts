@@ -1,24 +1,56 @@
 import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
-import { blogCategorySchema } from "@/lib/blog/schemas"
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const dynamic = 'force-dynamic'
+
+export async function GET(request: Request) {
+  try {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const { searchParams } = new URL(request.url)
+    const slug = searchParams.get("slug")
+
+    if (slug) {
+      const { data, error } = await supabase
+        .from("blog_categories")
+        .select("*")
+        .eq("slug", slug)
+        .single()
+
+      if (error) throw error
+      if (!data) {
+        return new NextResponse("Not found", { status: 404 })
+      }
+
+      return NextResponse.json(data)
+    } else {
+      const { data, error } = await supabase
+        .from("blog_categories")
+        .select("*")
+        .order("name", { ascending: true })
+
+      if (error) throw error
+
+      return NextResponse.json(data)
+    }
+  } catch (error) {
+    console.error("Error fetching categories:", error)
+    return new NextResponse("Internal Server Error", { status: 500 })
+  }
+}
 
 export async function POST(request: Request) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const json = await request.json()
-    const { data: { session } } = await supabase.auth.getSession()
 
-    if (!session) {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
-
-    const validatedData = blogCategorySchema.parse(json)
     const { data, error } = await supabase
       .from("blog_categories")
       .insert([
         {
-          ...validatedData,
+          ...json,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
@@ -31,23 +63,6 @@ export async function POST(request: Request) {
     return NextResponse.json(data)
   } catch (error) {
     console.error("Error creating category:", error)
-    return new NextResponse("Internal Server Error", { status: 500 })
-  }
-}
-
-export async function GET() {
-  try {
-    const supabase = createRouteHandlerClient({ cookies })
-    const { data, error } = await supabase
-      .from("blog_categories")
-      .select("*")
-      .order("name", { ascending: true })
-
-    if (error) throw error
-
-    return NextResponse.json(data)
-  } catch (error) {
-    console.error("Error fetching categories:", error)
     return new NextResponse("Internal Server Error", { status: 500 })
   }
 } 
