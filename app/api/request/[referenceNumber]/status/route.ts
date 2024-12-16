@@ -8,12 +8,14 @@ const statusUpdateSchema = z.object({
   notes: z.string().optional(),
 })
 
+export const dynamic = 'force-dynamic'
 export async function PATCH(
   request: Request,
   { params }: { params: { referenceNumber: string } }
 ) {
+  const supabase = createRouteHandlerClient({ cookies })
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {

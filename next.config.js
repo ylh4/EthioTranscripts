@@ -12,7 +12,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
   },
-  output: 'standalone',
+  distDir: '.next',
   webpack: (config) => {
     // Suppress punycode warning
     config.ignoreWarnings = [

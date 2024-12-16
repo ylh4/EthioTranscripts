@@ -27,8 +27,8 @@ export default async function EditBlogPostPage({ params }: EditBlogPostPageProps
   return (
     <div className="container space-y-8 py-8">
       <PageHeader
-        heading="Edit Blog Post"
-        text="Edit and update your blog post"
+        title="Edit Blog Post"
+        description="Edit and update your blog post"
       />
       <div className="mx-auto max-w-4xl">
         <BlogPostEditor post={post as BlogPost} />
