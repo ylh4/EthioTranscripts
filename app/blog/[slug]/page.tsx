@@ -1,10 +1,11 @@
-import { Metadata } from "next"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+"use client"
+
+import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
 import { format } from "date-fns"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import type { BlogPost } from "@/lib/blog/schemas"
 
 interface BlogPostPageProps {
   params: {
@@ -12,43 +13,38 @@ interface BlogPostPageProps {
   }
 }
 
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const supabase = createServerComponentClient({ cookies })
-  const { data: post } = await supabase
-    .from("blog_posts")
-    .select(`
-      *,
-      categories:blog_posts_categories(
-        category:blog_categories(*)
-      )
-    `)
-    .eq("slug", params.slug)
-    .single()
+export default function BlogPostPage({ params }: BlogPostPageProps) {
+  const [post, setPost] = useState<BlogPost | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (!post || !post.published_at) {
-    return {
-      title: "Blog Post Not Found",
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const response = await fetch(`/api/blog/public?slug=${params.slug}`)
+        if (!response.ok) {
+          if (response.status === 404) {
+            notFound()
+          }
+          throw new Error("Failed to fetch post")
+        }
+        const data = await response.json()
+        setPost(data)
+      } catch (error) {
+        console.error("Failed to fetch post:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
+    fetchPost()
+  }, [params.slug])
 
-  return {
-    title: post.title,
-    description: post.excerpt,
+  if (isLoading) {
+    return (
+      <div className="text-center text-muted-foreground">
+        Loading post...
+      </div>
+    )
   }
-}
-
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const supabase = createServerComponentClient({ cookies })
-  const { data: post } = await supabase
-    .from("blog_posts")
-    .select(`
-      *,
-      categories:blog_posts_categories(
-        category:blog_categories(*)
-      )
-    `)
-    .eq("slug", params.slug)
-    .single()
 
   if (!post || !post.published_at) {
     notFound()

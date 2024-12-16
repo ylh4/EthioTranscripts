@@ -1,10 +1,11 @@
-import { Metadata } from "next"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+"use client"
+
+import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
 import { PageHeader } from "@/components/page-header"
+import type { BlogPost, BlogCategory } from "@/lib/blog/schemas"
 
 interface CategoryPageProps {
   params: {
@@ -12,53 +13,52 @@ interface CategoryPageProps {
   }
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const supabase = createServerComponentClient({ cookies })
-  const { data: category } = await supabase
-    .from("blog_categories")
-    .select("*")
-    .eq("slug", params.slug)
-    .single()
+export default function CategoryPage({ params }: CategoryPageProps) {
+  const [category, setCategory] = useState<BlogCategory | null>(null)
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (!category) {
-    return {
-      title: "Category Not Found",
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // First get the category
+        const categoryResponse = await fetch(`/api/blog/categories?slug=${params.slug}`)
+        if (!categoryResponse.ok) {
+          if (categoryResponse.status === 404) {
+            notFound()
+          }
+          throw new Error("Failed to fetch category")
+        }
+        const categoryData = await categoryResponse.json()
+        setCategory(categoryData)
+
+        // Then get posts in this category
+        const postsResponse = await fetch(`/api/blog/public?category=${categoryData.id}`)
+        if (!postsResponse.ok) {
+          throw new Error("Failed to fetch posts")
+        }
+        const postsData = await postsResponse.json()
+        setPosts(postsData)
+      } catch (error) {
+        console.error("Failed to fetch data:", error)
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
+    fetchData()
+  }, [params.slug])
 
-  return {
-    title: `${category.name} - Blog`,
-    description: category.description || `Read our latest blog posts in ${category.name}`,
+  if (isLoading) {
+    return (
+      <div className="text-center text-muted-foreground">
+        Loading...
+      </div>
+    )
   }
-}
-
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const supabase = createServerComponentClient({ cookies })
-  
-  // First get the category
-  const { data: category } = await supabase
-    .from("blog_categories")
-    .select("*")
-    .eq("slug", params.slug)
-    .single()
 
   if (!category) {
     notFound()
   }
-
-  // Then get posts in this category
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select(`
-      *,
-      categories:blog_posts_categories(
-        category:blog_categories(*)
-      )
-    `)
-    .not("published_at", "is", null)
-    .lte("published_at", new Date().toISOString())
-    .eq("blog_posts_categories.category_id", category.id)
-    .order("published_at", { ascending: false })
 
   return (
     <>
@@ -103,13 +103,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               </div>
             </article>
           ))}
-        </div>
 
-        {(!posts || posts.length === 0) && (
-          <div className="text-center text-muted-foreground">
-            No blog posts found in this category.
-          </div>
-        )}
+          {(!posts || posts.length === 0) && !isLoading && (
+            <div className="text-center text-muted-foreground">
+              No blog posts found in this category.
+            </div>
+          )}
+        </div>
       </div>
     </>
   )
