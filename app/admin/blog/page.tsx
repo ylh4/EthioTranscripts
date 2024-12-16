@@ -12,10 +12,11 @@ export const metadata: Metadata = {
 export default function BlogManagementPage() {
   return (
     <div className="container space-y-8 py-8">
-      <PageHeader
-        heading="Blog Management"
-        text="Create, edit, and manage your blog posts"
-      >
+      <div className="flex justify-between items-center">
+        <PageHeader
+          title="Blog Management"
+          description="Create, edit, and manage your blog posts"
+        />
         <div className="flex items-center space-x-4">
           <Button asChild variant="outline">
             <Link href="/admin/blog/categories">
@@ -28,7 +29,7 @@ export default function BlogManagementPage() {
             </Link>
           </Button>
         </div>
-      </PageHeader>
+      </div>
       <BlogPostList />
     </div>
   )

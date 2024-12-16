@@ -29,7 +29,7 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
   const router = useRouter()
   const [categories, setCategories] = useState<BlogCategory[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    post?.categories?.map((cat) => cat.id!) ?? []
+    post?.categories?.map(({ category }) => category.id) ?? []
   )
 
   const form = useForm<BlogPost>({
@@ -59,14 +59,13 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
 
   const onSubmit = useCallback(async (values: BlogPost) => {
     try {
-      // Add selected categories to the form data
       const postData = {
         ...values,
         categories: selectedCategories,
       }
 
-      const response = await fetch(`/api/blog${post?.id ? `/${post.id}` : ""}`, {
-        method: post?.id ? "PUT" : "POST",
+      const response = await fetch(`/api/blog${post ? `/${post.id}` : ""}`, {
+        method: post ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -74,15 +73,19 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to save post")
+        const errorData = await response.json().catch(() => null)
+        throw new Error(errorData?.error || "Failed to save post")
       }
 
-      toast.success(post?.id ? "Post updated successfully" : "Post created successfully")
+      const data = await response.json()
+      toast.success(post ? "Post updated successfully" : "Post created successfully")
+      router.refresh()
       router.push("/admin/blog")
     } catch (error) {
-      toast.error("Failed to save post")
+      console.error("Error saving post:", error)
+      toast.error(error instanceof Error ? error.message : "Failed to save post")
     }
-  }, [post?.id, router, selectedCategories])
+  }, [post, router, selectedCategories])
 
   const handlePublishToggle = (checked: boolean) => {
     form.setValue("published_at", checked ? new Date().toISOString() : null)

@@ -2,13 +2,13 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const json = await request.json()
     
     const { categories: categoryIds, ...postData } = json
@@ -26,7 +26,12 @@ export async function POST(request: Request) {
       .select()
       .single()
 
-    if (postError) throw postError
+    if (postError) {
+      return NextResponse.json(
+        { error: postError.message },
+        { status: 400 }
+      )
+    }
 
     // If categories are provided, create the relationships
     if (categoryIds && categoryIds.length > 0) {
@@ -39,7 +44,12 @@ export async function POST(request: Request) {
         .from("blog_posts_categories")
         .insert(categoryRelations)
 
-      if (categoryError) throw categoryError
+      if (categoryError) {
+        return NextResponse.json(
+          { error: "Failed to add categories" },
+          { status: 400 }
+        )
+      }
     }
 
     // Fetch the post with categories
@@ -54,18 +64,26 @@ export async function POST(request: Request) {
       .eq("id", post.id)
       .single()
 
-    if (fetchError) throw fetchError
+    if (fetchError || !fullPost) {
+      return NextResponse.json(
+        { error: "Failed to fetch created post" },
+        { status: 400 }
+      )
+    }
 
     return NextResponse.json(fullPost)
   } catch (error) {
     console.error("Error creating blog post:", error)
-    return new NextResponse("Internal Server Error", { status: 500 })
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
   }
 }
 
 export async function GET() {
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const { data, error } = await supabase
       .from("blog_posts")
       .select(`
@@ -76,11 +94,19 @@ export async function GET() {
       `)
       .order("created_at", { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
 
     return NextResponse.json(data)
   } catch (error) {
     console.error("Error fetching blog posts:", error)
-    return new NextResponse("Internal Server Error", { status: 500 })
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
   }
 } 

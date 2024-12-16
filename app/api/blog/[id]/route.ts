@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
 
 export const dynamic = 'force-dynamic'
 
@@ -11,7 +11,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const { data, error } = await supabase
       .from("blog_posts")
       .select(`
@@ -38,23 +38,39 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const json = await request.json()
     const { categories: categoryIds, ...postData } = json
 
+    // First, check if the post exists
+    const { data: existingPost, error: checkError } = await supabase
+      .from("blog_posts")
+      .select("id")
+      .eq("id", params.id)
+      .single()
+
+    if (checkError || !existingPost) {
+      return NextResponse.json(
+        { error: "Post not found" },
+        { status: 404 }
+      )
+    }
+
     // Update the blog post
-    const { data: post, error: postError } = await supabase
+    const { error: updateError } = await supabase
       .from("blog_posts")
       .update({
         ...postData,
         updated_at: new Date().toISOString(),
       })
       .eq("id", params.id)
-      .select()
-      .single()
 
-    if (postError) throw postError
-    if (!post) return new NextResponse("Not found", { status: 404 })
+    if (updateError) {
+      return NextResponse.json(
+        { error: updateError.message },
+        { status: 400 }
+      )
+    }
 
     // Delete existing category relationships
     const { error: deleteError } = await supabase
@@ -62,7 +78,12 @@ export async function PUT(
       .delete()
       .eq("post_id", params.id)
 
-    if (deleteError) throw deleteError
+    if (deleteError) {
+      return NextResponse.json(
+        { error: "Failed to update categories" },
+        { status: 400 }
+      )
+    }
 
     // If categories are provided, create new relationships
     if (categoryIds && categoryIds.length > 0) {
@@ -75,7 +96,12 @@ export async function PUT(
         .from("blog_posts_categories")
         .insert(categoryRelations)
 
-      if (categoryError) throw categoryError
+      if (categoryError) {
+        return NextResponse.json(
+          { error: "Failed to update categories" },
+          { status: 400 }
+        )
+      }
     }
 
     // Fetch the updated post with categories
@@ -90,12 +116,20 @@ export async function PUT(
       .eq("id", params.id)
       .single()
 
-    if (fetchError) throw fetchError
+    if (fetchError || !fullPost) {
+      return NextResponse.json(
+        { error: "Failed to fetch updated post" },
+        { status: 400 }
+      )
+    }
 
     return NextResponse.json(fullPost)
   } catch (error) {
     console.error("Error updating blog post:", error)
-    return new NextResponse("Internal Server Error", { status: 500 })
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
   }
 }
 
@@ -104,7 +138,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const { error } = await supabase
       .from("blog_posts")
       .delete()
