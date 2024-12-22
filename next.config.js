@@ -35,12 +35,6 @@ const nextConfig = {
       '@radix-ui/react-toast',
       'lucide-react'
     ]
-  },
-  // Static export configuration
-  output: 'export',
-  // Disable image optimization for static export
-  images: {
-    unoptimized: true,
   }
 }
 

@@ -1,46 +1,36 @@
-"use client"
-
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { notFound } from "next/navigation"
 import { PageHeader } from "@/components/page-header"
 import { getStaticCategories, getStaticCategoryBySlug, getStaticPostsByCategory } from "@/lib/blog/static-data"
-import type { BlogPost, BlogCategory } from "@/lib/blog/schemas"
-import { withSearchParams } from "@/components/layout/with-search-params"
 
-interface CategoryPageProps {
-  params: {
-    slug: string
-  }
+export const revalidate = 3600 // Revalidate every hour
+
+export async function generateStaticParams() {
+  const categories = await getStaticCategories()
+  return categories.map((category) => ({
+    slug: category.slug,
+  }))
 }
 
-function CategoryPage({ params }: CategoryPageProps) {
-  const [category, setCategory] = useState<BlogCategory | null>(null)
-  const [posts, setPosts] = useState<BlogPost[]>([])
-
-  useEffect(() => {
-    const loadData = async () => {
-      const categoryData = await getStaticCategoryBySlug(params.slug)
-      if (!categoryData) {
-        notFound()
-      }
-      setCategory(categoryData)
-      const postsData = await getStaticPostsByCategory(categoryData.id)
-      setPosts(postsData)
-    }
-    loadData()
-  }, [params.slug])
+export default async function CategoryPage({
+  params,
+}: {
+  params: { slug: string }
+}) {
+  const category = await getStaticCategoryBySlug(params.slug)
 
   if (!category) {
-    return null
+    notFound()
   }
+
+  const posts = await getStaticPostsByCategory(category.id)
 
   return (
     <>
       <PageHeader
         heading={category.name}
-        text={category.description || `Read our latest blog posts in ${category.name}`}
+        text={`Browse all posts in ${category.name}`}
       />
 
       <div className="mt-8">
@@ -89,6 +79,4 @@ function CategoryPage({ params }: CategoryPageProps) {
       </div>
     </>
   )
-}
-
-export default withSearchParams(CategoryPage) 
+} 

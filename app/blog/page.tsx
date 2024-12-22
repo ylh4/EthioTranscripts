@@ -1,22 +1,12 @@
-"use client"
-
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { PageHeader } from "@/components/page-header"
 import { getStaticPosts } from "@/lib/blog/static-data"
-import { withSearchParams } from "@/components/layout/with-search-params"
 
-function BlogPage() {
-  const [posts, setPosts] = useState([])
+export const revalidate = 3600 // Revalidate every hour
 
-  useEffect(() => {
-    const loadPosts = async () => {
-      const data = await getStaticPosts()
-      setPosts(data)
-    }
-    loadPosts()
-  }, [])
+export default async function BlogPage() {
+  const posts = await getStaticPosts()
 
   return (
     <>
@@ -71,6 +61,4 @@ function BlogPage() {
       </div>
     </>
   )
-}
-
-export default withSearchParams(BlogPage) 
+} 
