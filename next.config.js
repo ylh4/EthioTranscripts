@@ -3,7 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     unoptimized: true,
-    domains: ['qjcztezbufyqbipwjwjv.supabase.co']
+    domains: ['qjcztezbufyqbipwjwjv.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'qjcztezbufyqbipwjwjv.supabase.co',
+      },
+    ],
   },
   trailingSlash: true,
   eslint: {
@@ -14,11 +20,21 @@ const nextConfig = {
   },
   distDir: '.next',
   webpack: (config) => {
-    // Suppress punycode warning
     config.ignoreWarnings = [
       { module: /node_modules\/punycode/ }
     ];
     return config;
+  },
+  // Next.js 14 optimizations
+  experimental: {
+    optimizePackageImports: [
+      '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-toast',
+      'lucide-react'
+    ]
   }
 }
 

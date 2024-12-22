@@ -1,8 +1,11 @@
+"use client"
+
 import { PageHeader } from "@/components/page-header"
 import { ServicesGrid } from "@/components/services/services-grid"
 import { PageLayout } from "@/components/layout/page-layout"
+import { withSearchParams } from "@/components/layout/with-search-params"
 
-export default function ServicesPage() {
+function ServicesPage() {
   return (
     <PageLayout>
       <PageHeader
@@ -13,3 +16,5 @@ export default function ServicesPage() {
     </PageLayout>
   )
 }
+
+export default withSearchParams(ServicesPage)

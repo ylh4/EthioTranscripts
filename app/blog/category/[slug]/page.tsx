@@ -1,9 +1,13 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { format } from "date-fns"
 import { notFound } from "next/navigation"
 import { PageHeader } from "@/components/page-header"
 import { getStaticCategories, getStaticCategoryBySlug, getStaticPostsByCategory } from "@/lib/blog/static-data"
 import type { BlogPost, BlogCategory } from "@/lib/blog/schemas"
+import { withSearchParams } from "@/components/layout/with-search-params"
 
 interface CategoryPageProps {
   params: {
@@ -11,21 +15,26 @@ interface CategoryPageProps {
   }
 }
 
-export async function generateStaticParams() {
-  const categories = await getStaticCategories()
-  return categories.map((category) => ({
-    slug: category.slug,
-  }))
-}
+function CategoryPage({ params }: CategoryPageProps) {
+  const [category, setCategory] = useState<BlogCategory | null>(null)
+  const [posts, setPosts] = useState<BlogPost[]>([])
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
-  const category = await getStaticCategoryBySlug(params.slug)
-  
+  useEffect(() => {
+    const loadData = async () => {
+      const categoryData = await getStaticCategoryBySlug(params.slug)
+      if (!categoryData) {
+        notFound()
+      }
+      setCategory(categoryData)
+      const postsData = await getStaticPostsByCategory(categoryData.id)
+      setPosts(postsData)
+    }
+    loadData()
+  }, [params.slug])
+
   if (!category) {
-    notFound()
+    return null
   }
-
-  const posts = await getStaticPostsByCategory(category.id)
 
   return (
     <>
@@ -80,4 +89,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       </div>
     </>
   )
-} 
+}
+
+export default withSearchParams(CategoryPage) 

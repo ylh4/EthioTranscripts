@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
+import GoogleAnalytics from '@/components/analytics/google-analytics'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -34,6 +35,7 @@ export default function RootLayout({
           {children}
           <Toaster />
         </ThemeProvider>
+        <GoogleAnalytics />
       </body>
     </html>
   )

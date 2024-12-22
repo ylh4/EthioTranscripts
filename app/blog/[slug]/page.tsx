@@ -1,8 +1,13 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { format } from "date-fns"
 import { notFound } from "next/navigation"
 import Markdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { getStaticPosts, getStaticPostBySlug } from "@/lib/blog/static-data"
+import { withSearchParams } from "@/components/layout/with-search-params"
+import type { BlogPost } from "@/lib/blog/schemas"
 
 interface BlogPostPageProps {
   params: {
@@ -10,18 +15,22 @@ interface BlogPostPageProps {
   }
 }
 
-export async function generateStaticParams() {
-  const posts = await getStaticPosts()
-  return posts.map((post) => ({
-    slug: post.slug,
-  }))
-}
+function BlogPostPage({ params }: BlogPostPageProps) {
+  const [post, setPost] = useState<BlogPost | null>(null)
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getStaticPostBySlug(params.slug)
+  useEffect(() => {
+    const loadPost = async () => {
+      const postData = await getStaticPostBySlug(params.slug)
+      if (!postData || !postData.published_at) {
+        notFound()
+      }
+      setPost(postData)
+    }
+    loadPost()
+  }, [params.slug])
 
-  if (!post || !post.published_at) {
-    notFound()
+  if (!post) {
+    return null
   }
 
   return (
@@ -110,4 +119,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </div>
     </article>
   )
-} 
+}
+
+export default withSearchParams(BlogPostPage) 
