@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import GoogleAnalytics from '@/components/analytics/google-analytics'
+import SuspenseWrapper from '@/components/layout/suspense-wrapper'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -32,7 +33,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={cn(inter.className, 'min-h-screen bg-background')}>
         <ThemeProvider attribute="class" defaultTheme="light">
-          {children}
+          <SuspenseWrapper>
+            {children}
+          </SuspenseWrapper>
           <Toaster />
         </ThemeProvider>
         <GoogleAnalytics />
