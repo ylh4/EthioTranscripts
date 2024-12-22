@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +9,7 @@ export async function GET(
 ) {
   try {
     console.log('Fetching blog post with slug/id:', params.slug)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClientComponentClient()
     
     // First try to find the post by slug
     let { data: post, error: slugError } = await supabase
@@ -54,7 +51,7 @@ export async function GET(
 
       post = idPost
     } else if (slugError && slugError.code === '22P02') {
-      // This is a UUID format error, just treat it as a not found
+      // This is a UUID format error, just treat it as not found
       console.log('Invalid UUID format, treating as not found')
       return NextResponse.json(
         { error: "Post not found" },
@@ -82,6 +79,61 @@ export async function GET(
     console.error("Unexpected error fetching blog post:", error)
     return NextResponse.json(
       { error: "Internal Server Error" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    const supabase = createClientComponentClient()
+    const json = await request.json()
+
+    // Check if we're updating by ID or slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.slug)
+    const { data: post, error } = await supabase
+      .from("blog_posts")
+      .update(json)
+      .eq(isUUID ? 'id' : 'slug', params.slug)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json(post)
+  } catch (error) {
+    console.error("Error updating blog post:", error)
+    return NextResponse.json(
+      { error: "Failed to update post" },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    const supabase = createClientComponentClient()
+
+    // Check if we're deleting by ID or slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.slug)
+    const { error } = await supabase
+      .from("blog_posts")
+      .delete()
+      .eq(isUUID ? 'id' : 'slug', params.slug)
+
+    if (error) throw error
+
+    return new NextResponse(null, { status: 204 })
+  } catch (error) {
+    console.error("Error deleting blog post:", error)
+    return NextResponse.json(
+      { error: "Failed to delete post" },
       { status: 500 }
     )
   }
