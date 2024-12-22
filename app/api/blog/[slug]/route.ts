@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY!
 
 export const dynamic = 'force-dynamic'
 
@@ -9,26 +12,15 @@ export async function GET(
 ) {
   try {
     console.log('Fetching blog post with slug/id:', params.slug)
-    const supabase = createClientComponentClient()
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     
-    // First try to find the post by slug
-    let { data: post, error: slugError } = await supabase
-      .from("blog_posts")
-      .select(`
-        *,
-        categories:blog_posts_categories(
-          category:blog_categories(*)
-        )
-      `)
-      .eq('slug', params.slug)
-      .maybeSingle()
-
-    console.log('Slug lookup result:', { post, error: slugError })
-
-    // If no post found by slug and the param looks like a UUID, try finding by ID
-    if (!post && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.slug)) {
+    // Check if the parameter is a UUID
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.slug)
+    
+    // If it's a UUID, try direct ID lookup first
+    if (isUUID) {
       console.log('Attempting ID lookup for:', params.slug)
-      const { data: idPost, error: idError } = await supabase
+      const { data: post, error: idError } = await supabase
         .from("blog_posts")
         .select(`
           *,
@@ -37,32 +29,51 @@ export async function GET(
           )
         `)
         .eq('id', params.slug)
-        .maybeSingle()
+        .single()
 
-      console.log('ID lookup result:', { post: idPost, error: idError })
+      console.log('ID lookup result:', { post, error: idError })
 
       if (idError) {
-        console.error("Error fetching blog post by ID:", idError)
-        return NextResponse.json(
-          { error: `Failed to fetch post by ID: ${idError.message}` },
-          { status: 400 }
-        )
+        if (idError.code === 'PGRST116') {
+          console.log('Post not found by ID')
+          return NextResponse.json(
+            { error: "Post not found" },
+            { status: 404 }
+          )
+        }
+        throw idError
       }
 
-      post = idPost
-    } else if (slugError && slugError.code === '22P02') {
-      // This is a UUID format error, just treat it as not found
-      console.log('Invalid UUID format, treating as not found')
-      return NextResponse.json(
-        { error: "Post not found" },
-        { status: 404 }
-      )
-    } else if (slugError) {
-      console.error("Error fetching blog post by slug:", slugError)
-      return NextResponse.json(
-        { error: `Failed to fetch post by slug: ${slugError.message}` },
-        { status: 400 }
-      )
+      if (post) {
+        console.log('Successfully found post by ID:', { id: post.id, slug: post.slug })
+        return NextResponse.json(post)
+      }
+    }
+
+    // If not found by ID or not a UUID, try slug lookup
+    console.log('Attempting slug lookup for:', params.slug)
+    const { data: post, error: slugError } = await supabase
+      .from("blog_posts")
+      .select(`
+        *,
+        categories:blog_posts_categories(
+          category:blog_categories(*)
+        )
+      `)
+      .eq('slug', params.slug)
+      .single()
+
+    console.log('Slug lookup result:', { post, error: slugError })
+
+    if (slugError) {
+      if (slugError.code === 'PGRST116') {
+        console.log('Post not found by slug')
+        return NextResponse.json(
+          { error: "Post not found" },
+          { status: 404 }
+        )
+      }
+      throw slugError
     }
 
     if (!post) {
@@ -73,12 +84,12 @@ export async function GET(
       )
     }
 
-    console.log('Successfully found post:', { id: post.id, slug: post.slug })
+    console.log('Successfully found post by slug:', { id: post.id, slug: post.slug })
     return NextResponse.json(post)
   } catch (error) {
     console.error("Unexpected error fetching blog post:", error)
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: error instanceof Error ? error.message : "Failed to fetch post" },
       { status: 500 }
     )
   }
@@ -89,25 +100,124 @@ export async function PUT(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const supabase = createClientComponentClient()
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const json = await request.json()
+
+    // Extract categories from the request body
+    const { categories, ...postData } = json
 
     // Check if we're updating by ID or slug
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.slug)
-    const { data: post, error } = await supabase
+    
+    // First, verify the post exists
+    const { data: existingPost, error: findError } = await supabase
       .from("blog_posts")
-      .update(json)
+      .select("id")
       .eq(isUUID ? 'id' : 'slug', params.slug)
+      .single()
+
+    if (findError) {
+      if (findError.code === 'PGRST116') {
+        // No post found
+        return NextResponse.json(
+          { error: "Post not found" },
+          { status: 404 }
+        )
+      }
+      console.error("Error finding post:", findError)
+      return NextResponse.json(
+        { error: findError.message },
+        { status: 400 }
+      )
+    }
+
+    if (!existingPost) {
+      return NextResponse.json(
+        { error: "Post not found" },
+        { status: 404 }
+      )
+    }
+
+    // Update the blog post
+    const { data: post, error: postError } = await supabase
+      .from("blog_posts")
+      .update(postData)
+      .eq('id', existingPost.id)
       .select()
       .single()
 
-    if (error) throw error
+    if (postError) {
+      console.error("Error updating post:", postError)
+      throw postError
+    }
 
-    return NextResponse.json(post)
+    if (!post) {
+      return NextResponse.json(
+        { error: "Failed to update post" },
+        { status: 500 }
+      )
+    }
+
+    // Handle categories if provided
+    if (categories !== undefined) {
+      // Delete existing category relationships
+      const { error: deleteError } = await supabase
+        .from("blog_posts_categories")
+        .delete()
+        .eq('post_id', post.id)
+
+      if (deleteError) {
+        console.error("Error deleting categories:", deleteError)
+        throw deleteError
+      }
+
+      // Insert new category relationships if any
+      if (categories && categories.length > 0) {
+        const { error: insertError } = await supabase
+          .from("blog_posts_categories")
+          .insert(
+            categories.map((categoryId: string) => ({
+              post_id: post.id,
+              category_id: categoryId
+            }))
+          )
+
+        if (insertError) {
+          console.error("Error inserting categories:", insertError)
+          throw insertError
+        }
+      }
+    }
+
+    // Fetch the updated post with categories
+    const { data: updatedPost, error: fetchError } = await supabase
+      .from("blog_posts")
+      .select(`
+        *,
+        categories:blog_posts_categories(
+          category:blog_categories(*)
+        )
+      `)
+      .eq('id', post.id)
+      .single()
+
+    if (fetchError) {
+      console.error("Error fetching updated post:", fetchError)
+      throw fetchError
+    }
+
+    if (!updatedPost) {
+      return NextResponse.json(
+        { error: "Failed to fetch updated post" },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(updatedPost)
   } catch (error) {
     console.error("Error updating blog post:", error)
     return NextResponse.json(
-      { error: "Failed to update post" },
+      { error: error instanceof Error ? error.message : "Failed to update post" },
       { status: 500 }
     )
   }
@@ -118,7 +228,7 @@ export async function DELETE(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const supabase = createClientComponentClient()
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Check if we're deleting by ID or slug
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.slug)

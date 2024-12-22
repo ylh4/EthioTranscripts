@@ -47,6 +47,13 @@ export function BlogPostList() {
     }
   }
 
+  const getViewLink = (post: BlogPost) => {
+    if (!post.published_at) {
+      return `/admin/blog/preview/${post.id}`
+    }
+    return `/blog/${post.slug}`
+  }
+
   const deletePost = async (id: string) => {
     try {
       await fetch(`/api/blog/${id}`, {
@@ -105,7 +112,7 @@ export function BlogPostList() {
                       size="icon"
                       asChild
                     >
-                      <Link href={`/blog/${post.published_at ? post.slug : post.id}`}>
+                      <Link href={getViewLink(post)}>
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View</span>
                       </Link>
