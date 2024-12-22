@@ -71,4 +71,3 @@ export async function getStaticCategoryBySlug(slug: string) {
 
   return category
 }
-  }
