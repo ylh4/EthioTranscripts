@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 import { SearchParamsWrapper } from '../layout/search-params-wrapper'
 
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 declare global {
   interface Window {
