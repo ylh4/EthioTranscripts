@@ -75,8 +75,8 @@ export default function BlogPostPage({
       <article className="bg-card rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-8">
           <PageHeader
-            heading={post.title}
-            text={post.excerpt}
+            title={post.title}
+            description={post.excerpt}
           />
 
           {isDraft && (
