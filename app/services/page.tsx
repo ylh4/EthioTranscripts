@@ -3,18 +3,18 @@
 import { PageHeader } from "@/components/page-header"
 import { ServicesGrid } from "@/components/services/services-grid"
 import { PageLayout } from "@/components/layout/page-layout"
-import { withSearchParams } from "@/components/layout/with-search-params"
+import { SearchParamsProvider } from "@/components/layout/search-params-provider"
 
-function ServicesPage() {
+export default function ServicesPage() {
   return (
-    <PageLayout>
-      <PageHeader
-        title="Our Services"
-        description="Comprehensive academic document services for Ethiopian universities"
-      />
-      <ServicesGrid />
-    </PageLayout>
+    <SearchParamsProvider>
+      <PageLayout>
+        <PageHeader
+          title="Our Services"
+          description="Comprehensive academic document services for Ethiopian universities"
+        />
+        <ServicesGrid />
+      </PageLayout>
+    </SearchParamsProvider>
   )
 }
-
-export default withSearchParams(ServicesPage)

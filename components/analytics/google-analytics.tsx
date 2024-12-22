@@ -1,10 +1,11 @@
 'use client'
 
-import Script from 'next/script'
-import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+import Script from 'next/script'
+import { SearchParamsWrapper } from '../layout/search-params-wrapper'
 
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID
 
 declare global {
   interface Window {
@@ -23,16 +24,6 @@ export const pageview = (url: string) => {
 
 export default function GoogleAnalytics() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    if (pathname) {
-      const url = pathname + searchParams.toString()
-      pageview(url)
-    }
-  }, [pathname, searchParams])
-
-  if (!GA_MEASUREMENT_ID) return null
 
   return (
     <>
@@ -48,12 +39,23 @@ export default function GoogleAnalytics() {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', {
-              page_path: window.location.pathname,
-            });
+            gtag('config', '${GA_MEASUREMENT_ID}');
           `,
         }}
       />
+      <SearchParamsWrapper>
+        {(searchParams) => {
+          useEffect(() => {
+            if (!GA_MEASUREMENT_ID) return
+
+            gtag('config', GA_MEASUREMENT_ID, {
+              page_path: pathname + searchParams.toString(),
+            })
+          }, [pathname, searchParams])
+
+          return null
+        }}
+      </SearchParamsWrapper>
     </>
   )
 } 

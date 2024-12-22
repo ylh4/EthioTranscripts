@@ -1,27 +1,11 @@
 "use client"
 
-import { Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { SearchParamsWrapper } from "./search-params-wrapper"
 
 interface WithSearchParamsProps {
-  children: React.ReactNode
+  children: (searchParams: URLSearchParams) => React.ReactNode
 }
 
-function SearchParamsContent({ children }: WithSearchParamsProps) {
-  useSearchParams()
-  return <>{children}</>
-}
-
-export function withSearchParams<P extends object>(
-  Component: React.ComponentType<P>
-) {
-  return function WithSearchParamsWrapper(props: P) {
-    return (
-      <Suspense fallback={null}>
-        <SearchParamsContent>
-          <Component {...props} />
-        </SearchParamsContent>
-      </Suspense>
-    )
-  }
+export function WithSearchParams({ children }: WithSearchParamsProps) {
+  return <SearchParamsWrapper children={children} />
 } 
