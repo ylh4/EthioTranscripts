@@ -31,7 +31,7 @@ export async function getStaticPostBySlug(slug: string) {
       )
     `)
     .eq("slug", slug)
-    .single()
+    .maybeSingle()
 
   return post
 }

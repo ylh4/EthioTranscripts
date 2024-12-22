@@ -105,7 +105,7 @@ export function BlogPostList() {
                       size="icon"
                       asChild
                     >
-                      <Link href={`/blog/${post.slug}`}>
+                      <Link href={`/blog/${post.published_at ? post.slug : post.id}`}>
                         <Eye className="h-4 w-4" />
                         <span className="sr-only">View</span>
                       </Link>
