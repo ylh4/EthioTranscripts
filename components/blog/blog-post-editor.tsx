@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ImageUpload } from "@/components/blog/image-upload"
 import { toast } from "sonner"
 import { blogPostSchema, type BlogPost, type BlogCategory } from "@/lib/blog/schemas"
 
@@ -99,6 +100,14 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
     )
   }
 
+  const handleImageUpload = (imageUrl: string, caption: string) => {
+    const content = form.getValues("content")
+    const imageMarkdown = caption
+      ? `\n![${caption}](${imageUrl})\n*${caption}*\n`
+      : `\n![Image](${imageUrl})\n`
+    form.setValue("content", content + imageMarkdown)
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -150,14 +159,22 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Content</FormLabel>
-              <FormControl>
-                <MDEditor
-                  value={field.value}
-                  onChange={(value) => field.onChange(value ?? "")}
-                  preview="edit"
-                  height={400}
-                />
-              </FormControl>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <ImageUpload onUpload={handleImageUpload} />
+                  <span className="text-sm text-muted-foreground">
+                    Upload an image to insert into your post
+                  </span>
+                </div>
+                <FormControl>
+                  <MDEditor
+                    value={field.value}
+                    onChange={(value) => field.onChange(value ?? "")}
+                    preview="edit"
+                    height={400}
+                  />
+                </FormControl>
+              </div>
               <FormMessage />
             </FormItem>
           )}

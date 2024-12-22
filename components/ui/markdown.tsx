@@ -2,6 +2,7 @@
 
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import Image from "next/image"
 
 interface MarkdownProps {
   content: string
@@ -13,7 +14,38 @@ export function Markdown({ content }: MarkdownProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          p: ({ children }) => <p className="mb-4 text-justify">{children}</p>,
+          p: ({ children, node }) => {
+            // Check if this paragraph contains only an image
+            const isImageOnly = node.children.length === 1 && node.children[0].type === 'image'
+            // Check if this paragraph is an image caption (italic text right after an image)
+            const isCaption = node.children.length === 1 && 
+              node.children[0].type === 'emphasis' && 
+              node.position?.start.line === (node.position?.start.line)
+            
+            if (isImageOnly) return children
+            if (isCaption) {
+              return (
+                <p className="text-center text-sm text-muted-foreground mt-2 mb-6">
+                  {children}
+                </p>
+              )
+            }
+            return <p className="mb-4 text-justify">{children}</p>
+          },
+          img: ({ src, alt }) => (
+            <div className="flex justify-center my-2">
+              <div className="relative max-w-2xl">
+                <Image
+                  src={src || ''}
+                  alt={alt || ''}
+                  width={800}
+                  height={400}
+                  className="rounded-lg"
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
+            </div>
+          ),
           h1: ({ children }) => <h1 className="text-3xl font-bold mb-6">{children}</h1>,
           h2: ({ children }) => <h2 className="text-2xl font-bold mb-4 mt-8">{children}</h2>,
           h3: ({ children }) => <h3 className="text-xl font-bold mb-3 mt-6">{children}</h3>,
