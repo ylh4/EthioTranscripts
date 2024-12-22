@@ -71,46 +71,48 @@ export default function BlogPostPage({
   const isDraft = !post.published_at
 
   return (
-    <>
-      <PageHeader
-        heading={post.title}
-        text={post.excerpt}
-      />
+    <div className="container max-w-4xl mx-auto px-4 py-8">
+      <article className="bg-card rounded-lg shadow-sm overflow-hidden">
+        <div className="px-6 py-8">
+          <PageHeader
+            heading={post.title}
+            text={post.excerpt}
+          />
 
-      {isDraft && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-md mb-8 text-center">
-          This is a draft post and is not visible to the public
-        </div>
-      )}
-
-      <div className="mt-8">
-        <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground mb-8">
-          {post.published_at ? (
-            <time dateTime={post.published_at}>
-              {format(new Date(post.published_at), "MMMM d, yyyy")}
-            </time>
-          ) : (
-            <span>Draft</span>
-          )}
-          {post.categories?.length > 0 && (
-            <div className="flex items-center space-x-1">
-              <span>•</span>
-              <div className="flex items-center space-x-1">
-                {post.categories.map(({ category }, index) => (
-                  <span key={category.id}>
-                    {category.name}
-                    {index < post.categories.length - 1 && ", "}
-                  </span>
-                ))}
-              </div>
+          {isDraft && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-md my-6 text-center">
+              This is a draft post and is not visible to the public
             </div>
           )}
-        </div>
 
-        <article className="prose prose-green mx-auto">
-          <Markdown content={post.content} />
-        </article>
-      </div>
-    </>
+          <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground my-6">
+            {post.published_at ? (
+              <time dateTime={post.published_at}>
+                {format(new Date(post.published_at), "MMMM d, yyyy")}
+              </time>
+            ) : (
+              <span>Draft</span>
+            )}
+            {post.categories?.length > 0 && (
+              <div className="flex items-center space-x-1">
+                <span>•</span>
+                <div className="flex items-center space-x-1">
+                  {post.categories.map(({ category }, index) => (
+                    <span key={category.id}>
+                      {category.name}
+                      {index < post.categories.length - 1 && ", "}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="prose prose-green max-w-none">
+            <Markdown content={post.content} />
+          </div>
+        </div>
+      </article>
+    </div>
   )
 } 
