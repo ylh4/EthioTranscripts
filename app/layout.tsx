@@ -36,9 +36,15 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     site: '@ethiotranscripts',
+    creator: '@ethiotranscripts',
     title: 'EthioTranscripts',
     description: 'Request and manage your academic transcripts from Ethiopian universities',
-    images: ['https://www.ethiotranscripts.com/og-image.jpg'],
+    images: [{
+      url: 'https://www.ethiotranscripts.com/og-image.jpg',
+      alt: 'EthioTranscripts',
+      width: 1200,
+      height: 630,
+    }],
   },
   keywords: [
     'transcripts',

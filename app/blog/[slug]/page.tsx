@@ -63,19 +63,17 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       }),
     },
     twitter: {
-      card: youtubeId ? "player" : "summary_large_image",
+      card: "summary_large_image",
+      site: "@ethiotranscripts",
+      creator: "@ethiotranscripts",
       title: post.title,
       description: post.excerpt,
-      site: "@ethiotranscripts",
-      images: [imageUrl],
-      ...(youtubeId && {
-        players: [{
-          playerUrl: `https://www.youtube.com/embed/${youtubeId}`,
-          width: 1280,
-          height: 720,
-          stream: `https://www.youtube.com/watch?v=${youtubeId}`,
-        }],
-      }),
+      images: [{
+        url: imageUrl,
+        alt: post.title,
+        width: 1200,
+        height: 630,
+      }],
     },
     other: {
       // Facebook specific tags
