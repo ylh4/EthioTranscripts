@@ -15,6 +15,31 @@ export const metadata: Metadata = {
     template: '%s | EthioTranscripts',
   },
   description: 'Request and manage your academic transcripts from Ethiopian universities',
+  metadataBase: new URL('https://www.ethiotranscripts.com'),
+  openGraph: {
+    type: 'website',
+    siteName: 'EthioTranscripts',
+    title: 'EthioTranscripts',
+    description: 'Request and manage your academic transcripts from Ethiopian universities',
+    url: 'https://www.ethiotranscripts.com',
+    locale: 'en_US',
+    images: [
+      {
+        url: 'https://www.ethiotranscripts.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'EthioTranscripts',
+        type: 'image/jpeg',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@ethiotranscripts',
+    title: 'EthioTranscripts',
+    description: 'Request and manage your academic transcripts from Ethiopian universities',
+    images: ['https://www.ethiotranscripts.com/og-image.jpg'],
+  },
   keywords: [
     'transcripts',
     'academic documents',
@@ -22,6 +47,9 @@ export const metadata: Metadata = {
     'document authentication',
     'document translation',
   ],
+  alternates: {
+    canonical: 'https://www.ethiotranscripts.com',
+  },
 }
 
 export default function RootLayout({

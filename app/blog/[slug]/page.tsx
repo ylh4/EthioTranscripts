@@ -24,29 +24,40 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const youtubeMatch = post.content.match(/youtube:([a-zA-Z0-9_-]+)/)
   const youtubeId = youtubeMatch ? youtubeMatch[1] : null
 
+  const imageUrl = post.featured_image || firstContentImage || "https://www.ethiotranscripts.com/og-image.jpg"
+  const postUrl = `https://www.ethiotranscripts.com/blog/${post.slug}`
+
   return {
     title: post.title,
     description: post.excerpt,
+    metadataBase: new URL('https://www.ethiotranscripts.com'),
+    alternates: {
+      canonical: postUrl,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: "article",
-      url: `https://www.ethiotranscripts.com/blog/${post.slug}`,
+      url: postUrl,
+      siteName: "EthioTranscripts",
+      locale: "en_US",
       images: [
         {
-          url: post.featured_image || firstContentImage || "https://www.ethiotranscripts.com/og-image.jpg",
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: post.title,
+          type: "image/jpeg",
         },
       ],
       ...(youtubeId && {
         videos: [
           {
             url: `https://www.youtube.com/watch?v=${youtubeId}`,
+            secureUrl: `https://www.youtube.com/watch?v=${youtubeId}`,
+            type: "text/html",
             width: 1280,
             height: 720,
-            type: "video/mp4",
           },
         ],
       }),
@@ -55,7 +66,29 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       card: youtubeId ? "player" : "summary_large_image",
       title: post.title,
       description: post.excerpt,
-      images: [post.featured_image || firstContentImage || "https://www.ethiotranscripts.com/og-image.jpg"],
+      site: "@ethiotranscripts",
+      images: [imageUrl],
+      ...(youtubeId && {
+        players: [{
+          playerUrl: `https://www.youtube.com/embed/${youtubeId}`,
+          width: 1280,
+          height: 720,
+          stream: `https://www.youtube.com/watch?v=${youtubeId}`,
+        }],
+      }),
+    },
+    other: {
+      // Facebook specific tags
+      "fb:app_id": process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
+      "og:video:type": youtubeId ? "text/html" : undefined,
+      "og:video:width": youtubeId ? "1280" : undefined,
+      "og:video:height": youtubeId ? "720" : undefined,
+      "og:video": youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : undefined,
+      "og:video:secure_url": youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : undefined,
+      // LinkedIn specific tags
+      "article:published_time": post.published_at,
+      "article:modified_time": post.updated_at,
+      "article:section": post.categories?.[0]?.category?.name,
     },
   }
 }
