@@ -50,6 +50,7 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
       slug: post?.slug ?? "",
       content: post?.content ?? "",
       excerpt: post?.excerpt ?? "",
+      featured_image: post?.featured_image ?? "",
       published_at: post?.published_at ?? null,
       categories: post?.categories ?? [],
     },
@@ -170,6 +171,34 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
               <FormControl>
                 <Input {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="featured_image"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Featured Image URL</FormLabel>
+              <div className="space-y-4">
+                <FormControl>
+                  <div className="flex gap-2">
+                    <Input {...field} placeholder="Enter image URL or upload an image" />
+                    <ImageUpload onUpload={(url) => field.onChange(url)} />
+                  </div>
+                </FormControl>
+                {field.value && (
+                  <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                    <img
+                      src={field.value}
+                      alt="Featured image preview"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+              </div>
               <FormMessage />
             </FormItem>
           )}

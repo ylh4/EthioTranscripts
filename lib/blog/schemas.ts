@@ -15,6 +15,7 @@ export const blogPostSchema = z.object({
   slug: z.string().min(1, "Slug is required").max(100, "Slug is too long"),
   content: z.string().min(1, "Content is required"),
   excerpt: z.string().min(1, "Excerpt is required").max(300, "Excerpt is too long"),
+  featured_image: z.string().optional(),
   published_at: z.string().nullable().optional(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
