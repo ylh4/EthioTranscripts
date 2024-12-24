@@ -3,7 +3,6 @@
 import { format } from "date-fns"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { PageHeader } from "@/components/page-header"
 import { Markdown } from "@/components/ui/markdown"
 import type { BlogPost } from "@/lib/blog/schemas"
 
@@ -53,66 +52,44 @@ export default function BlogPostPage({
     )
   }
 
-  if (error || !post) {
+  if (error) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-red-600 mb-2">Error</h2>
-        <p className="text-muted-foreground">{error || 'Post not found'}</p>
-        <button 
-          onClick={() => router.back()}
-          className="mt-4 px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90"
-        >
-          Go Back
-        </button>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center text-red-500">{error}</div>
       </div>
     )
   }
 
-  const isDraft = !post.published_at
+  if (!post) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center text-muted-foreground">Blog post not found</div>
+      </div>
+    )
+  }
 
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8">
-      <article className="bg-card rounded-lg shadow-sm overflow-hidden">
-        <div className="px-6 py-8">
-          <PageHeader
-            title={post.title}
-            description={post.excerpt}
-          />
-
-          {isDraft && (
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-md my-6 text-center">
-              This is a draft post and is not visible to the public
+    <article className="prose prose-green max-w-none pl-8 md:pl-12 lg:pl-16">
+      <h1 className="text-3xl font-bold mb-4 text-[#1B4332]">{post.title}</h1>
+      <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-8">
+        <time dateTime={post.published_at}>
+          {format(new Date(post.published_at), "MMMM d, yyyy")}
+        </time>
+        {post.categories?.length > 0 && (
+          <div className="flex items-center space-x-1">
+            <span>•</span>
+            <div className="flex items-center space-x-1">
+              {post.categories.map(({ category }, index) => (
+                <span key={category.id}>
+                  {category.name}
+                  {index < post.categories.length - 1 && ", "}
+                </span>
+              ))}
             </div>
-          )}
-
-          <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground my-6">
-            {post.published_at ? (
-              <time dateTime={post.published_at}>
-                {format(new Date(post.published_at), "MMMM d, yyyy")}
-              </time>
-            ) : (
-              <span>Draft</span>
-            )}
-            {post.categories?.length > 0 && (
-              <div className="flex items-center space-x-1">
-                <span>•</span>
-                <div className="flex items-center space-x-1">
-                  {post.categories.map(({ category }, index) => (
-                    <span key={category.id}>
-                      {category.name}
-                      {index < post.categories.length - 1 && ", "}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-
-          <div className="prose prose-green max-w-none">
-            <Markdown content={post.content} />
-          </div>
-        </div>
-      </article>
-    </div>
+        )}
+      </div>
+      <Markdown content={post.content} />
+    </article>
   )
 } 

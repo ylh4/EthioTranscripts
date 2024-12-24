@@ -10,10 +10,14 @@ export default async function BlogPage() {
 
   return (
     <>
-      <PageHeader
-        heading="Blog"
-        text="Read our latest blog posts and stay updated"
-      />
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-[#1B4332] mb-4">
+          Empowering Ethiopian Students to Achieve Their Dreams
+        </h1>
+        <p className="text-xl text-muted-foreground">
+          Insights, stories, and resources to help Ethiopian students succeed in their academic journey
+        </p>
+      </div>
 
       <div className="mt-8">
         <div className="space-y-8">
