@@ -13,7 +13,7 @@ export default async function BlogPage() {
         {posts?.map((post) => (
           <article
             key={post.id}
-            className="group relative flex flex-col space-y-4 bg-card p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+            className="group relative flex flex-col space-y-4 bg-card p-8 rounded-lg shadow-sm hover:shadow-md transition-shadow"
           >
             <h2 className="text-2xl font-bold text-center">
               <Link
@@ -23,7 +23,9 @@ export default async function BlogPage() {
                 {post.title}
               </Link>
             </h2>
-            <p className="text-muted-foreground text-justify">{post.excerpt}</p>
+            <p className="text-muted-foreground text-justify leading-relaxed">
+              {post.excerpt}
+            </p>
             <div className="flex items-center justify-center space-x-4 text-sm text-muted-foreground">
               <time dateTime={post.published_at}>
                 {format(new Date(post.published_at), "MMMM d, yyyy")}

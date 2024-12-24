@@ -29,10 +29,12 @@ export default async function BlogLayout({
 
       {/* Main content with fixed sidebar */}
       <main className="flex-1 container pt-[300px]">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 relative px-4 md:px-6 lg:px-8">
           {/* Scrollable main content */}
           <div className="lg:col-span-3 min-h-[calc(100vh-6rem)]">
-            {children}
+            <div className="max-w-3xl mx-auto">
+              {children}
+            </div>
           </div>
 
           {/* Fixed sidebar */}
