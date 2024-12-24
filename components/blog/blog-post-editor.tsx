@@ -19,8 +19,16 @@ import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ImageUpload } from "@/components/blog/image-upload"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { blogPostSchema, type BlogPost, type BlogCategory } from "@/lib/blog/schemas"
+import { Youtube } from "lucide-react"
 
 interface BlogPostEditorProps {
   post?: BlogPost
@@ -32,6 +40,8 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     post?.categories?.map(({ category }) => category.id) ?? []
   )
+  const [youtubeUrl, setYoutubeUrl] = useState("")
+  const [isYoutubeDialogOpen, setIsYoutubeDialogOpen] = useState(false)
 
   const form = useForm<BlogPost>({
     resolver: zodResolver(blogPostSchema),
@@ -108,6 +118,32 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
     form.setValue("content", content + imageMarkdown)
   }
 
+  const handleYoutubeAdd = () => {
+    try {
+      const url = new URL(youtubeUrl)
+      let videoId = ""
+
+      if (url.hostname === "youtu.be") {
+        videoId = url.pathname.slice(1)
+      } else if (url.searchParams.has("v")) {
+        videoId = url.searchParams.get("v") || ""
+      }
+
+      if (!videoId) {
+        throw new Error("Invalid YouTube URL")
+      }
+
+      const content = form.getValues("content")
+      const youtubeMarkdown = `\nyoutube:${videoId}\n`
+      form.setValue("content", content + youtubeMarkdown)
+      setYoutubeUrl("")
+      setIsYoutubeDialogOpen(false)
+      toast.success("YouTube video added successfully")
+    } catch (error) {
+      toast.error("Please enter a valid YouTube URL")
+    }
+  }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -162,8 +198,31 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <ImageUpload onUpload={handleImageUpload} />
+                  <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <Youtube className="h-4 w-4" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add YouTube Video</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                          <FormLabel>YouTube URL</FormLabel>
+                          <Input
+                            value={youtubeUrl}
+                            onChange={(e) => setYoutubeUrl(e.target.value)}
+                            placeholder="https://www.youtube.com/watch?v=..."
+                          />
+                        </div>
+                        <Button onClick={handleYoutubeAdd}>Add Video</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   <span className="text-sm text-muted-foreground">
-                    Upload an image to insert into your post
+                    Upload an image or add a YouTube video to your post
                   </span>
                 </div>
                 <FormControl>
@@ -222,16 +281,9 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
           )}
         />
 
-        <div className="flex justify-end space-x-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/admin/blog")}
-          >
-            Cancel
-          </Button>
+        <div className="flex justify-end">
           <Button type="submit">
-            {post?.id ? "Update" : "Create"} Post
+            {post ? "Update Post" : "Create Post"}
           </Button>
         </div>
       </form>

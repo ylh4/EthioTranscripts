@@ -3,6 +3,7 @@
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import Image from "next/image"
+import { YouTube } from "./youtube"
 
 interface MarkdownProps {
   content: string
@@ -21,6 +22,17 @@ export function Markdown({ content }: MarkdownProps) {
             const isCaption = node.children.length === 1 && 
               node.children[0].type === 'emphasis' && 
               node.position?.start.line === (node.position?.start.line)
+            // Check if this paragraph contains a YouTube embed
+            const isYouTube = node.children.length === 1 && 
+              node.children[0].type === 'text' && 
+              typeof node.children[0].value === 'string' &&
+              node.children[0].value.startsWith('youtube:')
+            
+            if (isYouTube) {
+              const text = node.children[0].value as string
+              const videoId = text.replace('youtube:', '').trim()
+              return <YouTube videoId={videoId} />
+            }
             
             if (isImageOnly) return children
             if (isCaption) {
