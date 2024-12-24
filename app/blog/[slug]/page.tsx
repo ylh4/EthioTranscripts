@@ -43,7 +43,7 @@ export default function BlogPostPage({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
@@ -54,7 +54,7 @@ export default function BlogPostPage({
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="text-center text-red-500">{error}</div>
       </div>
     )
@@ -62,14 +62,14 @@ export default function BlogPostPage({
 
   if (!post) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[calc(100vh-8rem)]">
         <div className="text-center text-muted-foreground">Blog post not found</div>
       </div>
     )
   }
 
   return (
-    <article className="prose prose-green max-w-none pl-8 md:pl-12 lg:pl-16">
+    <article className="prose prose-green max-w-none pb-8">
       <h1 className="text-3xl font-bold mb-4 text-[#1B4332]">{post.title}</h1>
       <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-8">
         <time dateTime={post.published_at}>
