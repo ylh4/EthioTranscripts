@@ -24,10 +24,15 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const youtubeMatch = post.content.match(/youtube:([a-zA-Z0-9_-]+)/)
   const youtubeId = youtubeMatch ? youtubeMatch[1] : null
 
-  const imageUrl = post.featured_image || firstContentImage || "https://www.ethiotranscripts.com/og-image.jpg"
+  // Get YouTube thumbnail URL if video exists
+  const youtubeThumbUrl = youtubeId 
+    ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+    : null
+
+  const imageUrl = youtubeThumbUrl || post.featured_image || firstContentImage || "https://www.ethiotranscripts.com/og-image.jpg"
   const postUrl = `https://www.ethiotranscripts.com/blog/${post.slug}`
 
-  return {
+  const metadata: Metadata = {
     title: post.title,
     description: post.excerpt,
     metadataBase: new URL('https://www.ethiotranscripts.com'),
@@ -50,17 +55,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
           type: "image/jpeg",
         },
       ],
-      ...(youtubeId && {
-        videos: [
-          {
-            url: `https://www.youtube.com/watch?v=${youtubeId}`,
-            secureUrl: `https://www.youtube.com/watch?v=${youtubeId}`,
-            type: "text/html",
-            width: 1280,
-            height: 720,
-          },
-        ],
-      }),
     },
     twitter: {
       card: "summary_large_image",
@@ -78,17 +72,39 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     other: {
       // Facebook specific tags
       "fb:app_id": process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
-      "og:video:type": youtubeId ? "text/html" : undefined,
-      "og:video:width": youtubeId ? "1280" : undefined,
-      "og:video:height": youtubeId ? "720" : undefined,
-      "og:video": youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : undefined,
-      "og:video:secure_url": youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : undefined,
+      
       // LinkedIn specific tags
       "article:published_time": post.published_at,
       "article:modified_time": post.updated_at,
       "article:section": post.categories?.[0]?.category?.name,
+      
+      // Video specific tags for LinkedIn and other platforms
+      ...(youtubeId && {
+        "og:video": `https://www.youtube.com/embed/${youtubeId}`,
+        "og:video:secure_url": `https://www.youtube.com/embed/${youtubeId}`,
+        "og:video:type": "text/html",
+        "og:video:width": "1280",
+        "og:video:height": "720",
+        "og:video:url": `https://www.youtube.com/watch?v=${youtubeId}`,
+        "og:type": "video.other",
+        
+        // LinkedIn specific video tags
+        "og:video:duration": "0", // LinkedIn requires this even if not known
+        "video:duration": "0",
+        "video:release_date": post.published_at,
+        "video:tag": post.categories?.map(({ category }) => category.name).join(","),
+        
+        // Thumbnail
+        "og:image": youtubeThumbUrl,
+        "og:image:secure_url": youtubeThumbUrl,
+        "og:image:width": "1280",
+        "og:image:height": "720",
+        "og:image:type": "image/jpeg",
+      }),
     },
   }
+
+  return metadata
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
