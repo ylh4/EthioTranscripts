@@ -20,11 +20,11 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const contentImageMatch = post.content.match(/!\[.*?\]\((.*?)\)/)
   const firstContentImage = contentImageMatch ? contentImageMatch[1] : null
 
-  // Extract YouTube video ID if present
-  const youtubeMatch = post.content.match(/youtube:([a-zA-Z0-9_-]+)/)
-  const youtubeId = youtubeMatch ? youtubeMatch[1] : null
+  // Extract YouTube video ID if present (support both formats)
+  const youtubeMatch = post.content.match(/(?:youtube:([a-zA-Z0-9_-]+)|(?:https?:\/\/(?:www\.)?youtube\.com\/watch\?v=|https?:\/\/youtu\.be\/)([a-zA-Z0-9_-]+))/)
+  const youtubeId = youtubeMatch ? (youtubeMatch[1] || youtubeMatch[2]) : null
 
-  // Get YouTube thumbnail URL if video exists
+  // Get YouTube thumbnail URL if video exists (using maxresdefault for highest quality)
   const youtubeThumbUrl = youtubeId 
     ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
     : null
@@ -42,19 +42,27 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     openGraph: {
       title: post.title,
       description: post.excerpt,
-      type: "article",
+      type: youtubeId ? "video.other" : "article",
       url: postUrl,
       siteName: "EthioTranscripts",
       locale: "en_US",
       images: [
         {
           url: imageUrl,
-          width: 1200,
-          height: 630,
+          width: youtubeId ? 1280 : 1200,
+          height: youtubeId ? 720 : 630,
           alt: post.title,
           type: "image/jpeg",
         },
       ],
+      ...(youtubeId && {
+        videos: [{
+          url: `https://www.youtube.com/watch?v=${youtubeId}`,
+          width: 1280,
+          height: 720,
+          type: "text/html",
+        }],
+      }),
     },
     twitter: {
       card: "summary_large_image",
@@ -65,8 +73,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       images: [{
         url: imageUrl,
         alt: post.title,
-        width: 1200,
-        height: 630,
+        width: youtubeId ? 1280 : 1200,
+        height: youtubeId ? 720 : 630,
       }],
     },
     other: {
@@ -86,20 +94,23 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         "og:video:width": "1280",
         "og:video:height": "720",
         "og:video:url": `https://www.youtube.com/watch?v=${youtubeId}`,
-        "og:type": "video.other",
         
         // LinkedIn specific video tags
-        "og:video:duration": "0", // LinkedIn requires this even if not known
         "video:duration": "0",
         "video:release_date": post.published_at,
         "video:tag": post.categories?.map(({ category }) => category.name).join(","),
         
-        // Thumbnail
+        // Force LinkedIn to use the video thumbnail
         "og:image": youtubeThumbUrl,
         "og:image:secure_url": youtubeThumbUrl,
         "og:image:width": "1280",
         "og:image:height": "720",
         "og:image:type": "image/jpeg",
+        
+        // Additional LinkedIn-specific tags
+        "og:video:duration": "0",
+        "linkedin:owner": "EthioTranscripts",
+        "og:rich_attachment": "true",
       }),
     },
   }
