@@ -91,6 +91,29 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
         throw new Error(data.error || "Failed to save post")
       }
 
+      // Revalidate the blog pages
+      await fetch('/api/revalidate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          path: '/blog'
+        })
+      });
+
+      if (post?.slug) {
+        await fetch('/api/revalidate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            path: `/blog/${post.slug}`
+          })
+        });
+      }
+
       toast.success(post ? "Post updated successfully" : "Post created successfully")
       router.refresh()
       router.push("/admin/blog")
