@@ -32,6 +32,16 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const imageUrl = youtubeThumbUrl || post.featured_image || firstContentImage || "https://www.ethiotranscripts.com/og-image.jpg"
   const postUrl = `https://www.ethiotranscripts.com/blog/${post.slug}`
 
+  // Define the primary image that should be used
+  const primaryImage = {
+    url: imageUrl,
+    width: youtubeId ? 1280 : 1200,
+    height: youtubeId ? 720 : 630,
+    alt: post.title,
+    type: "image/jpeg",
+    secureUrl: imageUrl,
+  }
+
   const metadata: Metadata = {
     title: post.title,
     description: post.excerpt,
@@ -46,16 +56,18 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       url: postUrl,
       siteName: "EthioTranscripts",
       locale: "en_US",
-      images: [
+      // Always put the video thumbnail first if it exists
+      images: youtubeId ? [
         {
-          url: imageUrl,
-          width: youtubeId ? 1280 : 1200,
-          height: youtubeId ? 720 : 630,
+          url: youtubeThumbUrl,
+          width: 1280,
+          height: 720,
           alt: post.title,
           type: "image/jpeg",
-          secureUrl: imageUrl,
+          secureUrl: youtubeThumbUrl,
         },
-      ],
+        primaryImage
+      ] : [primaryImage],
       ...(youtubeId && {
         videos: [{
           url: `https://www.youtube.com/watch?v=${youtubeId}`,
@@ -72,12 +84,12 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       creator: "@ethiotranscripts",
       title: post.title,
       description: post.excerpt,
-      images: [{
-        url: imageUrl,
+      images: youtubeId ? [{
+        url: youtubeThumbUrl,
         alt: post.title,
-        width: youtubeId ? 1280 : 1200,
-        height: youtubeId ? 720 : 630,
-      }],
+        width: 1280,
+        height: 720,
+      }] : [primaryImage],
     },
     other: {
       // Facebook specific tags
@@ -88,9 +100,9 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       "article:modified_time": post.updated_at,
       "article:section": post.categories?.[0]?.category?.name,
       
-      // LinkedIn specific image tags
-      "image": imageUrl,
-      "og:image:secure_url": imageUrl,
+      // Primary OpenGraph image tags (LinkedIn prioritizes these)
+      "og:image": youtubeId ? youtubeThumbUrl : imageUrl,
+      "og:image:secure_url": youtubeId ? youtubeThumbUrl : imageUrl,
       "og:image:width": youtubeId ? "1280" : "1200",
       "og:image:height": youtubeId ? "720" : "630",
       "og:image:type": "image/jpeg",
@@ -108,13 +120,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         "video:duration": "0",
         "video:release_date": post.published_at,
         "video:tag": post.categories?.map(({ category }) => category.name).join(","),
-        
-        // Force LinkedIn to use the video thumbnail
-        "og:image": youtubeThumbUrl,
-        "og:image:secure_url": youtubeThumbUrl,
-        "og:image:width": "1280",
-        "og:image:height": "720",
-        "og:image:type": "image/jpeg",
         
         // Additional LinkedIn-specific tags
         "og:video:duration": "0",
