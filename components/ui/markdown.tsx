@@ -31,10 +31,11 @@ export function Markdown({ content }: MarkdownProps) {
             if (isYouTube) {
               const text = node.children[0].value as string
               const videoId = text.replace('youtube:', '').trim()
-              return <YouTube videoId={videoId} />
+              return <div className="my-8"><YouTube videoId={videoId} /></div>
             }
             
-            if (isImageOnly) return children
+            // Return null for image-only paragraphs as we handle images separately
+            if (isImageOnly) return null
             if (isCaption) {
               return (
                 <p className="text-center text-sm text-muted-foreground mt-2 mb-6">
@@ -45,7 +46,7 @@ export function Markdown({ content }: MarkdownProps) {
             return <p className="mb-4 text-justify">{children}</p>
           },
           img: ({ src, alt }) => (
-            <div className="flex justify-center my-2">
+            <figure className="flex flex-col items-center my-8">
               <div className="relative max-w-2xl">
                 <Image
                   src={src || ''}
@@ -56,7 +57,7 @@ export function Markdown({ content }: MarkdownProps) {
                   style={{ objectFit: 'contain' }}
                 />
               </div>
-            </div>
+            </figure>
           ),
           h1: ({ children }) => <h1 className="text-3xl font-bold mb-6">{children}</h1>,
           h2: ({ children }) => <h2 className="text-2xl font-bold mb-4 mt-8">{children}</h2>,
