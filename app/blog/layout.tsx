@@ -16,7 +16,7 @@ export default async function BlogLayout({
       </header>
 
       {/* Main content with sidebar */}
-      <main className="container" style={{ marginTop: "80px" }}>
+      <main className="container" style={{ marginTop: "100px" }}>
         <div className="grid grid-cols-1 lg:grid-cols-[1fr,300px] gap-6 px-4 md:px-6 lg:px-8">
           {/* Main content */}
           <div className="w-full">

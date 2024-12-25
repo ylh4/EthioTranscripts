@@ -8,7 +8,7 @@ export default async function BlogPage() {
   const posts = await getStaticPosts()
 
   return (
-    <div className="grid gap-4 sm:gap-6 auto-rows-auto">
+    <div className="grid gap-4 sm:gap-6 auto-rows-auto mt-4">
       {posts?.map((post) => (
         <article
           key={post.id}

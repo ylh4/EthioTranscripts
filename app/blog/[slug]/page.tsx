@@ -153,7 +153,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const postUrl = `https://www.ethiotranscripts.com/blog/${params.slug}`
 
   return (
-    <div className="max-w-none pb-8 mt-4">
+    <div className="max-w-none pb-8 mt-8">
       {/* Header Section */}
       <div className="mb-8 not-prose">
         <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-[#1B4332]">{post.title}</h1>
