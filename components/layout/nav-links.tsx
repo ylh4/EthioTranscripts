@@ -8,17 +8,22 @@ export function NavLinks() {
   const isHome = pathname === "/"
 
   return (
-    <div className="hidden md:flex space-x-6">
-      {!isHome && (
-        <Link href="/" className="text-muted-foreground hover:text-primary">
-          Home
-        </Link>
-      )}
-      <Link href="/about" className="text-muted-foreground hover:text-primary">About</Link>
-      <Link href="/how-it-works" className="text-muted-foreground hover:text-primary">How it Works</Link>
-      <Link href="/services" className="text-muted-foreground hover:text-primary">Services</Link>
-      <Link href="/blog" className="text-muted-foreground hover:text-primary">Blog</Link>
-      <Link href="/contact" className="text-muted-foreground hover:text-primary">Contact</Link>
+    <div className="w-full overflow-x-auto no-scrollbar">
+      <div className="flex items-center space-x-6 px-4 sm:px-0 py-2 min-w-max">
+        {!isHome && (
+          <Link 
+            href="/" 
+            className="text-muted-foreground hover:text-primary whitespace-nowrap text-sm sm:text-base"
+          >
+            Home
+          </Link>
+        )}
+        <Link href="/about" className="text-muted-foreground hover:text-primary whitespace-nowrap text-sm sm:text-base">About</Link>
+        <Link href="/how-it-works" className="text-muted-foreground hover:text-primary whitespace-nowrap text-sm sm:text-base">How it Works</Link>
+        <Link href="/services" className="text-muted-foreground hover:text-primary whitespace-nowrap text-sm sm:text-base">Services</Link>
+        <Link href="/blog" className="text-muted-foreground hover:text-primary whitespace-nowrap text-sm sm:text-base">Blog</Link>
+        <Link href="/contact" className="text-muted-foreground hover:text-primary whitespace-nowrap text-sm sm:text-base">Contact</Link>
+      </div>
     </div>
   )
 }

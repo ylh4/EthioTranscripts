@@ -15,20 +15,8 @@ export default async function BlogLayout({
         </div>
       </header>
 
-      {/* Fixed blog title */}
-      <div className="fixed top-[84px] left-0 right-0 bg-background z-40 border-b shadow-sm">
-        <div className="container py-10 text-center">
-          <h1 className="text-4xl font-bold text-[#1B4332] mb-4">
-            Empowering Ethiopian Students to Achieve Their Dreams
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Insights, stories, and resources to help Ethiopian students succeed in their academic journey
-          </p>
-        </div>
-      </div>
-
       {/* Main content with fixed sidebar */}
-      <main className="flex-1 container pt-[300px]">
+      <main className="flex-1 container pt-24">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 relative px-4 md:px-6 lg:px-8">
           {/* Scrollable main content */}
           <div className="lg:col-span-3 min-h-[calc(100vh-6rem)]">
@@ -39,7 +27,15 @@ export default async function BlogLayout({
 
           {/* Fixed sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-[300px]">
+            <div className="sticky top-24 space-y-8">
+              <div className="bg-card p-6 rounded-lg space-y-3">
+                <h1 className="text-2xl font-bold text-[#1B4332] leading-tight">
+                  Empowering Ethiopian Students to Achieve Their Dreams
+                </h1>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Insights, stories, and resources to help Ethiopian students succeed in their academic journey
+                </p>
+              </div>
               <BlogCategories />
             </div>
           </div>
