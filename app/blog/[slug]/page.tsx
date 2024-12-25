@@ -153,18 +153,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const postUrl = `https://www.ethiotranscripts.com/blog/${params.slug}`
 
   return (
-    <div className="max-w-none pb-8">
+    <div className="max-w-none pb-8 mt-4">
       {/* Header Section */}
       <div className="mb-8 not-prose">
-        <h1 className="text-3xl font-bold mb-4 text-[#1B4332]">{post.title}</h1>
-        <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-[#1B4332]">{post.title}</h1>
+        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
           <time dateTime={post.published_at}>
             {format(new Date(post.published_at), "MMMM d, yyyy")}
           </time>
           {post.categories?.length > 0 && (
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center gap-1">
               <span>•</span>
-              <div className="flex items-center space-x-1">
+              <div className="flex flex-wrap gap-1">
                 {post.categories.map(({ category }, index) => (
                   <span key={category.id}>
                     {category.name}
@@ -194,7 +194,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       )}
 
       {/* Content */}
-      <div className="prose prose-green">
+      <div className="prose prose-green max-w-none">
         <Markdown content={post.content} />
       </div>
 

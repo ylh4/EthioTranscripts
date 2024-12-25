@@ -14,12 +14,12 @@ export default async function BlogPage() {
           key={post.id}
           className="bg-card p-4 sm:p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
-          <div className="space-y-2 sm:space-y-3">
+          <div className="space-y-3 sm:space-y-4">
             <Link
               href={`/blog/${post.slug}`}
               className="block hover:underline text-[#1B4332]"
             >
-              <h2 className="text-lg sm:text-xl font-bold line-clamp-2">
+              <h2 className="text-lg sm:text-xl font-bold">
                 {post.title}
               </h2>
             </Link>
