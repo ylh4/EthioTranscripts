@@ -6,9 +6,13 @@ export const revalidate = 3600 // Revalidate every hour
 
 export default async function BlogPage() {
   const posts = await getStaticPosts()
+  const renderTime = new Date().toISOString()
 
   return (
     <div className="grid gap-4 sm:gap-6 auto-rows-auto mt-4">
+      <div className="text-xs text-muted-foreground mb-4">
+        Last rendered: {renderTime}
+      </div>
       {posts?.map((post) => (
         <article
           key={post.id}

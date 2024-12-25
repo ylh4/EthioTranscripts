@@ -6,19 +6,30 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export async function getStaticPosts() {
-  const { data: posts } = await supabase
-    .from("blog_posts")
-    .select(`
-      *,
-      categories:blog_posts_categories(
-        category:blog_categories(*)
-      )
-    `)
-    .not("published_at", "is", null)
-    .lte("published_at", new Date().toISOString())
-    .order("published_at", { ascending: false })
+  try {
+    const { data: posts, error } = await supabase
+      .from("blog_posts")
+      .select(`
+        *,
+        categories:blog_posts_categories(
+          category:blog_categories(*)
+        )
+      `)
+      .not("published_at", "is", null)
+      .lte("published_at", new Date().toISOString())
+      .order("published_at", { ascending: false })
 
-  return posts || []
+    if (error) {
+      console.error('Error fetching posts:', error);
+      return [];
+    }
+
+    console.log('Fetched posts:', posts?.length || 0);
+    return posts || [];
+  } catch (error) {
+    console.error('Exception in getStaticPosts:', error);
+    return [];
+  }
 }
 
 export async function getStaticPostBySlug(slug: string) {
