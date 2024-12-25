@@ -14,6 +14,7 @@ create table blog_posts (
   slug text not null unique,
   content text not null,
   excerpt text not null,
+  featured_image text,
   published_at timestamp with time zone,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null

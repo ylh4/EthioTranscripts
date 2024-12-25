@@ -74,6 +74,7 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
       const postData = {
         ...values,
         categories: selectedCategories,
+        categories: undefined,
       }
 
       const response = await fetch(`/api/blog${post ? `/${post.id}` : ""}`, {
@@ -84,12 +85,12 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
         body: JSON.stringify(postData),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null)
-        throw new Error(errorData?.error || "Failed to save post")
+        throw new Error(data.error || "Failed to save post")
       }
 
-      const data = await response.json()
       toast.success(post ? "Post updated successfully" : "Post created successfully")
       router.refresh()
       router.push("/admin/blog")

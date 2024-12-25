@@ -20,7 +20,12 @@ export default async function EditBlogPostPage({ params }: EditBlogPostPageProps
   const supabase = createServerComponentClient({ cookies })
   const { data: post } = await supabase
     .from("blog_posts")
-    .select("*")
+    .select(`
+      *,
+      categories:blog_posts_categories(
+        category:blog_categories(*)
+      )
+    `)
     .eq("id", params.id)
     .single()
 

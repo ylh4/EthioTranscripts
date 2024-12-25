@@ -19,7 +19,11 @@ export const blogPostSchema = z.object({
   published_at: z.string().nullable().optional(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
-  categories: z.array(blogCategorySchema).optional(),
+  categories: z.array(
+    z.object({
+      category: blogCategorySchema
+    })
+  ).optional(),
 })
 
 export const blogCommentSchema = z.object({

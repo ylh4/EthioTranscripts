@@ -104,7 +104,13 @@ export async function PUT(
     const json = await request.json()
 
     // Extract categories from the request body
-    const { categories, ...postData } = json
+    const { categories: categoryIds, ...postData } = json
+
+    // Add updated_at timestamp
+    const dataToUpdate = {
+      ...postData,
+      updated_at: new Date().toISOString(),
+    }
 
     // Check if we're updating by ID or slug
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.slug)
@@ -117,17 +123,10 @@ export async function PUT(
       .single()
 
     if (findError) {
-      if (findError.code === 'PGRST116') {
-        // No post found
-        return NextResponse.json(
-          { error: "Post not found" },
-          { status: 404 }
-        )
-      }
       console.error("Error finding post:", findError)
       return NextResponse.json(
-        { error: findError.message },
-        { status: 400 }
+        { error: findError.code === 'PGRST116' ? "Post not found" : findError.message },
+        { status: findError.code === 'PGRST116' ? 404 : 400 }
       )
     }
 
@@ -141,14 +140,17 @@ export async function PUT(
     // Update the blog post
     const { data: post, error: postError } = await supabase
       .from("blog_posts")
-      .update(postData)
+      .update(dataToUpdate)
       .eq('id', existingPost.id)
       .select()
       .single()
 
     if (postError) {
       console.error("Error updating post:", postError)
-      throw postError
+      return NextResponse.json(
+        { error: postError.message },
+        { status: 400 }
+      )
     }
 
     if (!post) {
@@ -159,7 +161,7 @@ export async function PUT(
     }
 
     // Handle categories if provided
-    if (categories !== undefined) {
+    if (categoryIds !== undefined) {
       // Delete existing category relationships
       const { error: deleteError } = await supabase
         .from("blog_posts_categories")
@@ -168,15 +170,18 @@ export async function PUT(
 
       if (deleteError) {
         console.error("Error deleting categories:", deleteError)
-        throw deleteError
+        return NextResponse.json(
+          { error: "Failed to update categories" },
+          { status: 400 }
+        )
       }
 
       // Insert new category relationships if any
-      if (categories && categories.length > 0) {
+      if (categoryIds && categoryIds.length > 0) {
         const { error: insertError } = await supabase
           .from("blog_posts_categories")
           .insert(
-            categories.map((categoryId: string) => ({
+            categoryIds.map((categoryId: string) => ({
               post_id: post.id,
               category_id: categoryId
             }))
@@ -184,7 +189,10 @@ export async function PUT(
 
         if (insertError) {
           console.error("Error inserting categories:", insertError)
-          throw insertError
+          return NextResponse.json(
+            { error: "Failed to update categories" },
+            { status: 400 }
+          )
         }
       }
     }
@@ -203,7 +211,10 @@ export async function PUT(
 
     if (fetchError) {
       console.error("Error fetching updated post:", fetchError)
-      throw fetchError
+      return NextResponse.json(
+        { error: "Failed to fetch updated post" },
+        { status: 500 }
+      )
     }
 
     if (!updatedPost) {
