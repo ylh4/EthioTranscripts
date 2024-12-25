@@ -53,6 +53,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
           height: youtubeId ? 720 : 630,
           alt: post.title,
           type: "image/jpeg",
+          secureUrl: imageUrl,
         },
       ],
       ...(youtubeId && {
@@ -61,6 +62,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
           width: 1280,
           height: 720,
           type: "text/html",
+          secureUrl: `https://www.youtube.com/watch?v=${youtubeId}`,
         }],
       }),
     },
@@ -85,6 +87,13 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       "article:published_time": post.published_at,
       "article:modified_time": post.updated_at,
       "article:section": post.categories?.[0]?.category?.name,
+      
+      // LinkedIn specific image tags
+      "image": imageUrl,
+      "og:image:secure_url": imageUrl,
+      "og:image:width": youtubeId ? "1280" : "1200",
+      "og:image:height": youtubeId ? "720" : "630",
+      "og:image:type": "image/jpeg",
       
       // Video specific tags for LinkedIn and other platforms
       ...(youtubeId && {
