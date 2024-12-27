@@ -1,14 +1,5 @@
 import { z } from "zod"
 
-export const blogCategorySchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(1, "Name is required").max(100, "Name is too long"),
-  slug: z.string().min(1, "Slug is required").max(100, "Slug is too long"),
-  description: z.string().optional(),
-  created_at: z.string().optional(),
-  updated_at: z.string().optional(),
-})
-
 export const blogPostSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "Title is required").max(100, "Title is too long"),
@@ -19,11 +10,6 @@ export const blogPostSchema = z.object({
   published_at: z.string().nullable().optional(),
   created_at: z.string().optional(),
   updated_at: z.string().optional(),
-  categories: z.array(
-    z.object({
-      category: blogCategorySchema
-    })
-  ).optional(),
 })
 
 export const blogCommentSchema = z.object({
@@ -37,6 +23,5 @@ export const blogCommentSchema = z.object({
   updated_at: z.string().optional(),
 })
 
-export type BlogCategory = z.infer<typeof blogCategorySchema>
 export type BlogPost = z.infer<typeof blogPostSchema>
 export type BlogComment = z.infer<typeof blogCommentSchema> 

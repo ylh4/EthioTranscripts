@@ -1,5 +1,4 @@
 import { Navigation } from "@/components/layout/navigation"
-import { BlogCategories } from "@/components/blog/blog-categories"
 
 export default async function BlogLayout({
   children,
@@ -26,7 +25,7 @@ export default async function BlogLayout({
           {/* Sidebar */}
           <aside className="w-full">
             <div className="lg:sticky" style={{ top: "90px" }}>
-              <div className="bg-card p-4 sm:p-6 rounded-lg space-y-2 mb-6">
+              <div className="bg-card p-4 sm:p-6 rounded-lg space-y-2">
                 <h1 className="text-xl font-bold text-[#1B4332] leading-tight">
                   Empowering Ethiopian Students to Achieve Their Dreams
                 </h1>
@@ -34,7 +33,6 @@ export default async function BlogLayout({
                   Insights, stories, and resources to help Ethiopian students succeed in their academic journey
                 </p>
               </div>
-              <BlogCategories />
             </div>
           </aside>
         </div>

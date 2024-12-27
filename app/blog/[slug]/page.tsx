@@ -115,8 +115,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       // Article metadata
       "article:published_time": post.published_at,
       "article:modified_time": post.updated_at,
-      "article:section": post.categories?.[0]?.category?.name,
-      "article:tag": post.categories?.map(({ category }) => category.name).join(","),
 
       ...(youtubeId && {
         // Video metadata (high priority for LinkedIn)
@@ -129,7 +127,6 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         // Additional video metadata
         "video:duration": "0",
         "video:release_date": post.published_at,
-        "video:tag": post.categories?.map(({ category }) => category.name).join(","),
         
         // LinkedIn-specific
         "linkedin:owner": "EthioTranscripts",
@@ -161,19 +158,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <time dateTime={post.published_at}>
             {format(new Date(post.published_at), "MMMM d, yyyy")}
           </time>
-          {post.categories?.length > 0 && (
-            <div className="flex items-center gap-1">
-              <span>•</span>
-              <div className="flex flex-wrap gap-1">
-                {post.categories.map(({ category }, index) => (
-                  <span key={category.id}>
-                    {category.name}
-                    {index < post.categories.length - 1 && ", "}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
         <ShareButtons 
           url={postUrl}

@@ -17,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
 import { ImageUpload } from "@/components/blog/image-upload"
 import {
   Dialog,
@@ -27,7 +26,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
-import { blogPostSchema, type BlogPost, type BlogCategory } from "@/lib/blog/schemas"
+import { blogPostSchema, type BlogPost } from "@/lib/blog/schemas"
 import { Youtube } from "lucide-react"
 
 interface BlogPostEditorProps {
@@ -36,10 +35,6 @@ interface BlogPostEditorProps {
 
 export function BlogPostEditor({ post }: BlogPostEditorProps) {
   const router = useRouter()
-  const [categories, setCategories] = useState<BlogCategory[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    post?.categories?.map(({ category }) => category.id) ?? []
-  )
   const [youtubeUrl, setYoutubeUrl] = useState("")
   const [isYoutubeDialogOpen, setIsYoutubeDialogOpen] = useState(false)
 
@@ -52,29 +47,13 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
       excerpt: post?.excerpt ?? "",
       featured_image: post?.featured_image ?? "",
       published_at: post?.published_at ?? null,
-      categories: post?.categories ?? [],
     },
   })
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("/api/blog/categories")
-        const data = await response.json()
-        setCategories(data)
-      } catch (error) {
-        toast.error("Failed to fetch categories")
-      }
-    }
-    fetchCategories()
-  }, [])
 
   const onSubmit = useCallback(async (values: BlogPost) => {
     try {
       const postData = {
         ...values,
-        categories: selectedCategories,
-        categories: undefined,
       }
 
       const response = await fetch(`/api/blog${post ? `/${post.id}` : ""}`, {
@@ -121,18 +100,10 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
       console.error("Error saving post:", error)
       toast.error(error instanceof Error ? error.message : "Failed to save post")
     }
-  }, [post, router, selectedCategories])
+  }, [post, router])
 
   const handlePublishToggle = (checked: boolean) => {
     form.setValue("published_at", checked ? new Date().toISOString() : null)
-  }
-
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    )
   }
 
   const handleImageUpload = (imageUrl: string, caption: string) => {
@@ -248,96 +219,65 @@ export function BlogPostEditor({ post }: BlogPostEditorProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Content</FormLabel>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <ImageUpload onUpload={handleImageUpload} />
-                  <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Youtube className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Add YouTube Video</DialogTitle>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                          <FormLabel>YouTube URL</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <Dialog open={isYoutubeDialogOpen} onOpenChange={setIsYoutubeDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button type="button" variant="outline" size="icon">
+                          <Youtube className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Add YouTube Video</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
                           <Input
                             value={youtubeUrl}
                             onChange={(e) => setYoutubeUrl(e.target.value)}
-                            placeholder="https://www.youtube.com/watch?v=..."
+                            placeholder="Enter YouTube URL"
                           />
+                          <Button type="button" onClick={handleYoutubeAdd}>
+                            Add Video
+                          </Button>
                         </div>
-                        <Button onClick={handleYoutubeAdd}>Add Video</Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  <span className="text-sm text-muted-foreground">
-                    Upload an image or add a YouTube video to your post
-                  </span>
-                </div>
-                <FormControl>
+                      </DialogContent>
+                    </Dialog>
+                    <ImageUpload onUpload={(url, caption) => handleImageUpload(url, caption)} />
+                  </div>
                   <MDEditor
                     value={field.value}
                     onChange={(value) => field.onChange(value ?? "")}
                     preview="edit"
-                    height={400}
+                    className="min-h-[500px]"
                   />
-                </FormControl>
-              </div>
+                </div>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <FormItem>
-          <FormLabel>Categories</FormLabel>
-          <div className="grid gap-4 md:grid-cols-2">
-            {categories.map((category) => (
-              <div key={category.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={category.id}
-                  checked={selectedCategories.includes(category.id!)}
-                  onCheckedChange={() => toggleCategory(category.id!)}
-                />
-                <label
-                  htmlFor={category.id}
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  {category.name}
-                </label>
-              </div>
-            ))}
-          </div>
-        </FormItem>
-
         <FormField
           control={form.control}
           name="published_at"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Published</FormLabel>
-                <div className="text-sm text-muted-foreground">
-                  Make this post visible to the public
-                </div>
-              </div>
+            <FormItem className="flex items-center gap-2">
+              <FormLabel>Published</FormLabel>
               <FormControl>
                 <Switch
-                  checked={Boolean(field.value)}
+                  checked={field.value !== null}
                   onCheckedChange={handlePublishToggle}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
 
         <div className="flex justify-end">
-          <Button type="submit">
-            {post ? "Update Post" : "Create Post"}
-          </Button>
+          <Button type="submit">{post ? "Update" : "Create"} Post</Button>
         </div>
       </form>
     </Form>
