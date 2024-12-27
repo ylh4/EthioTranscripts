@@ -34,19 +34,6 @@ export default async function BlogPage() {
               <time dateTime={post.published_at}>
                 {format(new Date(post.published_at), "MMM d, yyyy")}
               </time>
-              {post.categories?.length > 0 && (
-                <>
-                  <span>•</span>
-                  <div className="flex flex-wrap gap-1">
-                    {post.categories.map(({ category }, index) => (
-                      <span key={category.id}>
-                        {category.name}
-                        {index < post.categories.length - 1 && ", "}
-                      </span>
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
           </div>
         </article>

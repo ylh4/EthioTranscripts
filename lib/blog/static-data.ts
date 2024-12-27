@@ -9,12 +9,7 @@ export async function getStaticPosts() {
   try {
     const { data: posts, error } = await supabase
       .from("blog_posts")
-      .select(`
-        *,
-        categories:blog_posts_categories(
-          category:blog_categories(*)
-        )
-      `)
+      .select("*")
       .not("published_at", "is", null)
       .lte("published_at", new Date().toISOString())
       .order("published_at", { ascending: false })
@@ -35,12 +30,7 @@ export async function getStaticPosts() {
 export async function getStaticPostBySlug(slug: string) {
   const { data: post } = await supabase
     .from("blog_posts")
-    .select(`
-      *,
-      categories:blog_posts_categories(
-        category:blog_categories(*)
-      )
-    `)
+    .select("*")
     .eq("slug", slug)
     .maybeSingle()
 
